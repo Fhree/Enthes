@@ -10,6 +10,7 @@ Its primary goal is to remove friction from daily morning symptom tracking and t
 
 * **Zero-Backend / Absolute Privacy:** Health data never leaves your device. No remote servers, no telemetry, no analytics tracking, and no data profiling.
 * **No Accounts or Sign-ups:** Install and start tracking immediately. No email, passwords, or personal identity required.
+* **On-Device Biometric Lock:** Secure your sensitive health logs with your device's native fingerprint, face recognition, or system PIN/passcode. Verification is handled entirely on-device by the secure hardware chip (TEE / Secure Enclave)—no biometric data is ever captured, stored, or sent across any network.
 * **Built for Stiff, Painful Hands:** Ergonomic UI featuring oversized touch targets designed specifically for morning stiffness. A complete daily check-in takes under 15 seconds without typing on a keyboard.
 * **Clinically Relevant Markers:** Tracks the exact clinical indicators that matter in psoriatic arthritis management:
   * Morning stiffness duration (*in clinically relevant ranges*).
@@ -22,11 +23,22 @@ Its primary goal is to remove friction from daily morning symptom tracking and t
 
 ---
 
+## 🔒 Security & On-Device Authentication
+
+Because health and symptom records are deeply personal, Enthes includes an optional local biometric lock:
+
+* **Hardware-Backed Protection:** Integrates with native platform security frameworks (`BiometricPrompt` on Android, `LocalAuthentication` on iOS).
+* **Device Credential Fallback:** If morning stiffness, swelling, or psoriasis skin plaques interfere with fingerprint recognition, the app seamlessly falls back to your standard device lock PIN, pattern, or password.
+* **Multitask Privacy:** When active, the app masks its interface in the recent apps switcher to keep records private from shoulder surfers.
+
+---
+
 ## 🛠️ Tech Stack
 
 * **Language:** Kotlin
 * **Cross-Platform UI:** Compose Multiplatform (Android / iOS)
 * **Local Persistence:** Type-safe SQLite (SQLDelight / Room KMP)
+* **Local Security:** Native Biometrics / Device Credential APIs (TEE / Secure Enclave)
 * **Architecture:** Clean Architecture / Domain-Driven Vertical Slices (TDD-focused)
 * **License:** GNU General Public License v3.0
 
