@@ -2,6 +2,12 @@ package com.enthes.repository
 
 import com.enthes.database.DatabaseDriverFactory
 import com.enthes.database.EnthesDatabase
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.Flow
+import com.enthes.database.Historic_disease_activity
 
 class DiseaseActivityRepository(driverFactory: DatabaseDriverFactory) {
 
@@ -28,5 +34,9 @@ class DiseaseActivityRepository(driverFactory: DatabaseDriverFactory) {
         )
     }
 
-    fun getAllActivities() = queries.selectAllDiseaseActivities().executeAsList()
+    fun getAllActivitiesAsFlow(): Flow<List<Historic_disease_activity>> {
+        return queries.selectAllDiseaseActivities()
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+    }
 }
