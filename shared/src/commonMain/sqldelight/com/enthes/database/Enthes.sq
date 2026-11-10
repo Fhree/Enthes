@@ -1,4 +1,4 @@
-CREATE TABLE daily_checkins (
+CREATE TABLE historic_disease_activity (
     id TEXT PRIMARY KEY NOT NULL,
     entry_date TEXT UNIQUE NOT NULL,
     morning_stiffness_minutes INTEGER,
@@ -9,14 +9,14 @@ CREATE TABLE daily_checkins (
 );
 
 -- Returns full list shorted by date asc
-selectAllCheckins:
+selectAllDiseaseActivities:
 SELECT *
-FROM daily_checkins
+FROM historic_disease_activity
 ORDER BY entry_date DESC;
 
 -- Add new daily data
-insertCheckin:
-INSERT INTO daily_checkins (
+insertDiseaseActivity:
+INSERT INTO historic_disease_activity (
     id,
     entry_date,
     morning_stiffness_minutes,
