@@ -60,6 +60,9 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
+        getByName("androidHostTest").dependencies {
+            implementation(libs.sqldelight.sqlite)
+        }
         getByName("androidDeviceTest").dependencies {
             implementation(libs.androidx.testRunner)
         }
