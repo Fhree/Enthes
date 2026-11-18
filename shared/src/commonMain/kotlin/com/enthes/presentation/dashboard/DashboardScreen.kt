@@ -24,8 +24,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.enthes.domain.model.DiseaseActivity
 import com.enthes.presentation.dashboard.components.ActivityItemCard
 import com.enthes.presentation.dashboard.components.EmptyDashboardPlaceholder
 import com.enthes.presentation.dashboard.components.QuickCheckinDialog
@@ -139,5 +141,48 @@ fun DashboardContent(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun DashboardContentEmptyPreview() {
+    MaterialTheme {
+        DashboardContent(
+            state = DashboardUiState.Empty,
+            onEvent = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun DashboardContentSuccessPreview() {
+    MaterialTheme {
+        DashboardContent(
+            state = DashboardUiState.Success(
+                activities = listOf(
+                    DiseaseActivity(
+                        id = "1",
+                        entryDate = "2026-11-18",
+                        morningStiffnessMinutes = 45,
+                        globalPainLevel = 6,
+                        fatigueLevel = 7,
+                        hasActiveFlare = true,
+                        createdAt = 1710000000000L,
+                    ),
+                    DiseaseActivity(
+                        id = "2",
+                        entryDate = "2026-11-17",
+                        morningStiffnessMinutes = 15,
+                        globalPainLevel = 2,
+                        fatigueLevel = 3,
+                        hasActiveFlare = false,
+                        createdAt = 1709913600000L,
+                    ),
+                ),
+            ),
+            onEvent = {},
+        )
     }
 }
