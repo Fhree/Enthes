@@ -4,6 +4,7 @@ import app.cash.sqldelight.db.SqlDriver
 import com.enthes.database.createInMemorySqlDriver
 import com.enthes.domain.model.DiseaseActivity
 import com.enthes.domain.repository.DiseaseActivityRepository
+import com.enthes.presentation.dashboard.DashboardViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.koin.core.context.startKoin
@@ -28,6 +29,7 @@ class KoinModuleTest : KoinTest {
         startKoin {
             modules(
                 dataModule,
+                presentationModule,
                 module {
                     single<SqlDriver> { sqlDriver }
                 },
@@ -62,5 +64,11 @@ class KoinModuleTest : KoinTest {
         val activities = repository.getAllActivities().first()
         assertEquals(1, activities.size)
         assertEquals(activity, activities[0])
+    }
+
+    @Test
+    fun testKoinResolvesDashboardViewModel() {
+        val viewModel = get<DashboardViewModel>()
+        assertNotNull(viewModel)
     }
 }
