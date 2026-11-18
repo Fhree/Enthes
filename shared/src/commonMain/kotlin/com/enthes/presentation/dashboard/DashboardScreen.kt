@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -18,13 +19,16 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.enthes.presentation.dashboard.components.ActivityItemCard
 import com.enthes.presentation.dashboard.components.EmptyDashboardPlaceholder
+import com.enthes.presentation.dashboard.components.QuickCheckinDialog
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -48,12 +52,23 @@ fun DashboardContent(
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+    var showCheckinDialog by remember { mutableStateOf(value = false) }
 
     if ((state is DashboardUiState.Success) && (state.errorMessage != null)) {
         LaunchedEffect(state.errorMessage) {
             snackbarHostState.showSnackbar(message = state.errorMessage)
             onEvent(DashboardEvent.OnDismissError)
         }
+    }
+
+    if (showCheckinDialog) {
+        QuickCheckinDialog(
+            onDismissRequest = { showCheckinDialog = false },
+            onSaveCheckin = { activity ->
+                showCheckinDialog = false
+                onEvent(DashboardEvent.OnSaveCheckin(activity))
+            },
+        )
     }
 
     Scaffold(
@@ -66,6 +81,16 @@ fun DashboardContent(
                     titleContentColor = MaterialTheme.colorScheme.onSurface,
                 ),
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { showCheckinDialog = true },
+            ) {
+                Text(
+                    text = "+",
+                    style = MaterialTheme.typography.headlineMedium,
+                )
+            }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { paddingValues ->
