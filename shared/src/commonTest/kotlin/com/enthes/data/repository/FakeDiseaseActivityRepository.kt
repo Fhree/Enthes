@@ -1,5 +1,6 @@
 package com.enthes.data.repository
 
+import com.enthes.domain.error.DuplicateEntryDateException
 import com.enthes.domain.model.DiseaseActivity
 import com.enthes.domain.repository.DiseaseActivityRepository
 import kotlinx.coroutines.flow.Flow
@@ -21,7 +22,7 @@ class FakeDiseaseActivityRepository(
     override suspend fun insertActivity(activity: DiseaseActivity): Result<Unit> = when {
         shouldFailOnInsert -> Result.failure(failureException)
         existingActivities.any { it.entryDate == activity.entryDate } -> {
-            Result.failure(IllegalArgumentException("Duplicate entryDate: ${activity.entryDate}"))
+            Result.failure(DuplicateEntryDateException(activity.entryDate))
         }
         else -> {
             existingActivities.add(activity)
