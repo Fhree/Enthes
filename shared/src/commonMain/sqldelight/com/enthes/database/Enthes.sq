@@ -8,7 +8,7 @@ CREATE TABLE historic_disease_activity (
     created_at INTEGER NOT NULL
 );
 
--- Returns full list shorted by date asc
+-- Returns full list sorted by date DESC
 selectAllDiseaseActivities:
 SELECT *
 FROM historic_disease_activity
