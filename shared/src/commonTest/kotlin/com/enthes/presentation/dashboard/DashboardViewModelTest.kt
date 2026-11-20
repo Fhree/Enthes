@@ -129,8 +129,7 @@ class DashboardViewModelTest {
         val currentState = vm.uiState.value
         assertTrue(currentState is DashboardUiState.Success)
         assertEquals(listOf(activity1), currentState.activities)
-        assertNotNull(currentState.errorMessage)
-        assertTrue(currentState.errorMessage.contains("Duplicate") || currentState.errorMessage.contains("2026-11-12"))
+        assertEquals("A check-in for 2026-11-12 already exists.", currentState.errorMessage)
     }
 
     @Test
@@ -200,5 +199,32 @@ class DashboardViewModelTest {
             DashboardUiState.Success(activities = listOf(activity1), errorMessage = null),
             viewModel.uiState.value,
         )
+    }
+
+    @Test
+    fun onSaveCheckinDoesNotLeakRawErrorMessagesOnUnexpectedFailure() = runTest(testDispatcher) {
+        val activity = DiseaseActivity(
+            id = "1",
+            entryDate = "2026-11-12",
+            morningStiffnessMinutes = 20,
+            globalPainLevel = 4,
+            fatigueLevel = 3,
+            hasActiveFlare = false,
+            createdAt = 1710000000000L,
+        )
+
+        repository.shouldFailOnInsert = true
+        repository.failureException = IllegalStateException("SQLITE_FULL: database or disk is full")
+
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {}
+        }
+        advanceUntilIdle()
+
+        viewModel.onEvent(DashboardEvent.OnSaveCheckin(activity))
+        advanceUntilIdle()
+
+        val currentState = viewModel.uiState.value as DashboardUiState.Success
+        assertEquals("Failed to save check-in. Please try again.", currentState.errorMessage)
     }
 }

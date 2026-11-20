@@ -2,6 +2,7 @@ package com.enthes.presentation.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.enthes.domain.error.DuplicateEntryDateException
 import com.enthes.domain.repository.DiseaseActivityRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -43,7 +44,7 @@ class DashboardViewModel(
                             _errorMessage.value = null
                         }
                         .onFailure { error ->
-                            _errorMessage.value = error.message ?: "Failed to save check-in"
+                            _errorMessage.value = mapErrorMessage(error)
                         }
                 }
             }
@@ -51,5 +52,12 @@ class DashboardViewModel(
                 _errorMessage.value = null
             }
         }
+    }
+
+    private fun mapErrorMessage(error: Throwable): String = when (error) {
+        is DuplicateEntryDateException -> {
+            "A check-in for ${error.entryDate} already exists."
+        }
+        else -> "Failed to save check-in. Please try again."
     }
 }

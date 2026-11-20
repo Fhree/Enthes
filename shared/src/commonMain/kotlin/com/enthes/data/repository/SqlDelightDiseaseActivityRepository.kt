@@ -6,6 +6,7 @@ import com.enthes.data.mapper.insertDiseaseActivity
 import com.enthes.data.mapper.toDomain
 import com.enthes.database.DatabaseDriverFactory
 import com.enthes.database.EnthesDatabase
+import com.enthes.domain.error.DuplicateEntryDateException
 import com.enthes.domain.model.DiseaseActivity
 import com.enthes.domain.repository.DiseaseActivityRepository
 import kotlinx.coroutines.Dispatchers
@@ -31,10 +32,24 @@ class SqlDelightDiseaseActivityRepository(
     }
 
     override suspend fun insertActivity(activity: DiseaseActivity): Result<Unit> = withContext(Dispatchers.IO) {
-        runCatching {
+        val result = runCatching {
             queries.insertDiseaseActivity(activity)
-        }.onFailure { throwable ->
-            if (throwable is CancellationException) throw throwable
+        }
+        val failure = result.exceptionOrNull()
+        when {
+            failure == null -> result
+            failure is CancellationException -> throw failure
+            failure.isUniqueConstraintViolation() -> {
+                Result.failure(DuplicateEntryDateException(activity.entryDate, failure))
+            }
+            else -> result
         }
     }
+
+    private fun Throwable.isUniqueConstraintViolation(): Boolean =
+        generateSequence(this) { it.cause }.any { error ->
+            val message = error.message.orEmpty()
+            message.contains("UNIQUE constraint failed", ignoreCase = true) ||
+                message.contains("SQLITE_CONSTRAINT_UNIQUE", ignoreCase = true)
+        }
 }

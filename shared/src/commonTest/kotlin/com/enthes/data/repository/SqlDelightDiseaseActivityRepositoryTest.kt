@@ -3,6 +3,7 @@ package com.enthes.data.repository
 import app.cash.sqldelight.db.SqlDriver
 import com.enthes.database.EnthesDatabase
 import com.enthes.database.createInMemorySqlDriver
+import com.enthes.domain.error.DuplicateEntryDateException
 import com.enthes.domain.model.DiseaseActivity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -10,6 +11,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class SqlDelightDiseaseActivityRepositoryTest {
@@ -77,5 +79,7 @@ class SqlDelightDiseaseActivityRepositoryTest {
 
         val result2 = repository.insertActivity(activity2)
         assertTrue(result2.isFailure)
+        val exception = assertIs<DuplicateEntryDateException>(result2.exceptionOrNull())
+        assertEquals("2026-11-12", exception.entryDate)
     }
 }
