@@ -13,6 +13,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.cancellation.CancellationException
 
 class SqlDelightDiseaseActivityRepository(
     database: EnthesDatabase,
@@ -30,11 +31,10 @@ class SqlDelightDiseaseActivityRepository(
     }
 
     override suspend fun insertActivity(activity: DiseaseActivity): Result<Unit> = withContext(Dispatchers.IO) {
-        try {
+        runCatching {
             queries.insertDiseaseActivity(activity)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
+        }.onFailure { throwable ->
+            if (throwable is CancellationException) throw throwable
         }
     }
 }

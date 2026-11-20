@@ -52,76 +52,22 @@ fun QuickCheckinDialog(
             )
         },
         text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                OutlinedTextField(
-                    value = entryDate,
-                    onValueChange = { entryDate = it },
-                    label = { Text("Date (YYYY-MM-DD)") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                Column {
-                    Text(
-                        text = "Pain Level: ${painLevel.roundToInt()}/10",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    Slider(
-                        value = painLevel,
-                        onValueChange = { painLevel = it },
-                        valueRange = 0f..10f,
-                        steps = 9,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-
-                Column {
-                    Text(
-                        text = "Fatigue Level: ${fatigueLevel.roundToInt()}/10",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    Slider(
-                        value = fatigueLevel,
-                        onValueChange = { fatigueLevel = it },
-                        valueRange = 0f..10f,
-                        steps = 9,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-
-                OutlinedTextField(
-                    value = stiffnessMinutes,
-                    onValueChange = { input ->
-                        if (input.all { it.isDigit() }) {
-                            stiffnessMinutes = input
-                        }
-                    },
-                    label = { Text("Morning Stiffness (minutes)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = "Active Flare",
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
-                    Switch(
-                        checked = hasActiveFlare,
-                        onCheckedChange = { hasActiveFlare = it },
-                    )
-                }
-            }
+            QuickCheckinForm(
+                entryDate = entryDate,
+                onEntryDateChange = { entryDate = it },
+                painLevel = painLevel,
+                onPainLevelChange = { painLevel = it },
+                fatigueLevel = fatigueLevel,
+                onFatigueLevelChange = { fatigueLevel = it },
+                stiffnessMinutes = stiffnessMinutes,
+                onStiffnessMinutesChange = { input ->
+                    if (input.all { it.isDigit() }) {
+                        stiffnessMinutes = input
+                    }
+                },
+                hasActiveFlare = hasActiveFlare,
+                onHasActiveFlareChange = { hasActiveFlare = it },
+            )
         },
         confirmButton = {
             TextButton(
@@ -147,4 +93,92 @@ fun QuickCheckinDialog(
             }
         },
     )
+}
+
+@Composable
+private fun QuickCheckinForm(
+    entryDate: String,
+    onEntryDateChange: (String) -> Unit,
+    painLevel: Float,
+    onPainLevelChange: (Float) -> Unit,
+    fatigueLevel: Float,
+    onFatigueLevelChange: (Float) -> Unit,
+    stiffnessMinutes: String,
+    onStiffnessMinutesChange: (String) -> Unit,
+    hasActiveFlare: Boolean,
+    onHasActiveFlareChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        OutlinedTextField(
+            value = entryDate,
+            onValueChange = onEntryDateChange,
+            label = { Text("Date (YYYY-MM-DD)") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        CheckinSliderField(
+            label = "Pain Level",
+            value = painLevel,
+            onValueChange = onPainLevelChange,
+        )
+
+        CheckinSliderField(
+            label = "Fatigue Level",
+            value = fatigueLevel,
+            onValueChange = onFatigueLevelChange,
+        )
+
+        OutlinedTextField(
+            value = stiffnessMinutes,
+            onValueChange = onStiffnessMinutesChange,
+            label = { Text("Morning Stiffness (minutes)") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "Active Flare",
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            Switch(
+                checked = hasActiveFlare,
+                onCheckedChange = onHasActiveFlareChange,
+            )
+        }
+    }
+}
+
+@Composable
+private fun CheckinSliderField(
+    label: String,
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = "$label: ${value.roundToInt()}/10",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Slider(
+            value = value,
+            onValueChange = onValueChange,
+            valueRange = 0f..10f,
+            steps = 9,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
 }
