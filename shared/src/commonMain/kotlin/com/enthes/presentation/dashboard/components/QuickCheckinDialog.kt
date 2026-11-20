@@ -25,7 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.enthes.domain.model.DiseaseActivity
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 import kotlin.math.roundToInt
+import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -36,7 +39,8 @@ fun QuickCheckinDialog(
     onSaveCheckin: (DiseaseActivity) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var entryDate by remember { mutableStateOf("2026-11-18") }
+    val todayDate = remember { Clock.System.todayIn(TimeZone.currentSystemDefault()).toString() }
+    var entryDate by remember { mutableStateOf(todayDate) }
     var painLevel by remember { mutableFloatStateOf(3f) }
     var fatigueLevel by remember { mutableFloatStateOf(3f) }
     var stiffnessMinutes by remember { mutableStateOf("15") }
@@ -74,12 +78,12 @@ fun QuickCheckinDialog(
                 onClick = {
                     val activity = DiseaseActivity(
                         id = Uuid.random().toString(),
-                        entryDate = entryDate.ifBlank { "2026-11-18" },
+                        entryDate = entryDate.ifBlank { todayDate },
                         morningStiffnessMinutes = stiffnessMinutes.toIntOrNull() ?: 0,
                         globalPainLevel = painLevel.roundToInt().coerceIn(0, 10),
                         fatigueLevel = fatigueLevel.roundToInt().coerceIn(0, 10),
                         hasActiveFlare = hasActiveFlare,
-                        createdAt = kotlin.time.Clock.System.now().toEpochMilliseconds(),
+                        createdAt = Clock.System.now().toEpochMilliseconds(),
                     )
                     onSaveCheckin(activity)
                 },
