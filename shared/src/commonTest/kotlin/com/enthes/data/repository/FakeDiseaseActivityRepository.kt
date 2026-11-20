@@ -18,16 +18,16 @@ class FakeDiseaseActivityRepository(
 
     override fun getAllActivities(): Flow<List<DiseaseActivity>> = activitiesFlow.asStateFlow()
 
-    override suspend fun insertActivity(activity: DiseaseActivity): Result<Unit> {
-        if (shouldFailOnInsert) {
-            return Result.failure(failureException)
+    override suspend fun insertActivity(activity: DiseaseActivity): Result<Unit> = when {
+        shouldFailOnInsert -> Result.failure(failureException)
+        existingActivities.any { it.entryDate == activity.entryDate } -> {
+            Result.failure(IllegalArgumentException("Duplicate entryDate: ${activity.entryDate}"))
         }
-        if (existingActivities.any { it.entryDate == activity.entryDate }) {
-            return Result.failure(IllegalArgumentException("Duplicate entryDate: ${activity.entryDate}"))
+        else -> {
+            existingActivities.add(activity)
+            activitiesFlow.value = existingActivities.toList()
+            Result.success(Unit)
         }
-        existingActivities.add(activity)
-        activitiesFlow.value = existingActivities.toList()
-        return Result.success(Unit)
     }
 
     fun emitActivities(activities: List<DiseaseActivity>) {

@@ -30,10 +30,13 @@ jobs:
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v3
 
-      - name: Run unit tests and checks
+      - name: Run Detekt static analysis
         run: |
-          chmod +x gradlew 
-          ./gradlew check --continue
+          chmod +x gradlew
+          ./gradlew detekt
+
+      - name: Run unit tests and checks
+        run: ./gradlew check --continue
 
       - name: Verify Android compilation
         run: ./gradlew :androidApp:assembleDebug

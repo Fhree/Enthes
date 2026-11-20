@@ -96,47 +96,48 @@ fun DashboardContent(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { paddingValues ->
-        when (state) {
-            is DashboardUiState.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center,
+        DashboardBody(
+            state = state,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+        )
+    }
+}
+
+@Composable
+private fun DashboardBody(
+    state: DashboardUiState,
+    modifier: Modifier = Modifier,
+) {
+    when (state) {
+        is DashboardUiState.Loading -> {
+            Box(
+                modifier = modifier,
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        is DashboardUiState.Empty -> {
+            EmptyDashboardPlaceholder(modifier = modifier)
+        }
+
+        is DashboardUiState.Success -> {
+            if (state.activities.isEmpty()) {
+                EmptyDashboardPlaceholder(modifier = modifier)
+            } else {
+                LazyColumn(
+                    modifier = modifier,
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            is DashboardUiState.Empty -> {
-                EmptyDashboardPlaceholder(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                )
-            }
-
-            is DashboardUiState.Success -> {
-                if (state.activities.isEmpty()) {
-                    EmptyDashboardPlaceholder(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
-                    )
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        items(
-                            items = state.activities,
-                            key = { (id) -> id },
-                        ) { activity ->
-                            ActivityItemCard(activity = activity)
-                        }
+                    items(
+                        items = state.activities,
+                        key = { (id) -> id },
+                    ) { activity ->
+                        ActivityItemCard(activity = activity)
                     }
                 }
             }
