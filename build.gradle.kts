@@ -16,6 +16,8 @@ subprojects {
     apply(plugin = rootProject.libs.plugins.detekt.get().pluginId)
 
     extensions.configure<DetektExtension> {
+        buildUponDefaultConfig = true
+        config.setFrom(rootProject.file("config/detekt/detekt.yml"))
         parallel = true
         source.setFrom(
             files(
