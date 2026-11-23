@@ -48,6 +48,17 @@ class DashboardViewModel(
                         }
                 }
             }
+            is DashboardEvent.OnDeleteActivity -> {
+                viewModelScope.launch {
+                    repository.deleteActivity(event.id)
+                        .onSuccess {
+                            _errorMessage.value = null
+                        }
+                        .onFailure {
+                            _errorMessage.value = "Failed to delete check-in. Please try again."
+                        }
+                }
+            }
             DashboardEvent.OnDismissError -> {
                 _errorMessage.value = null
             }
