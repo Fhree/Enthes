@@ -66,26 +66,20 @@ fun DashboardContent(
         }
     }
 
-    if (showCheckinDialog) {
-        QuickCheckinDialog(
-            onDismissRequest = { showCheckinDialog = false },
-            onSaveCheckin = { activity ->
-                showCheckinDialog = false
-                onEvent(DashboardEvent.OnSaveCheckin(activity))
-            },
-        )
-    }
-
-    activityToDelete?.let { activity ->
-        DeleteActivityConfirmationDialog(
-            entryDate = activity.entryDate,
-            onDismissRequest = { activityToDelete = null },
-            onConfirmDelete = {
-                activityToDelete = null
-                onEvent(DashboardEvent.OnDeleteActivity(activity.id))
-            },
-        )
-    }
+    DashboardDialogs(
+        showCheckinDialog = showCheckinDialog,
+        activityToDelete = activityToDelete,
+        onDismissCheckin = { showCheckinDialog = false },
+        onSaveCheckin = { activity ->
+            showCheckinDialog = false
+            onEvent(DashboardEvent.OnSaveCheckin(activity))
+        },
+        onDismissDelete = { activityToDelete = null },
+        onConfirmDelete = { activity ->
+            activityToDelete = null
+            onEvent(DashboardEvent.OnDeleteActivity(activity.id))
+        },
+    )
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -116,6 +110,31 @@ fun DashboardContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
+        )
+    }
+}
+
+@Composable
+private fun DashboardDialogs(
+    showCheckinDialog: Boolean,
+    activityToDelete: DiseaseActivity?,
+    onDismissCheckin: () -> Unit,
+    onSaveCheckin: (DiseaseActivity) -> Unit,
+    onDismissDelete: () -> Unit,
+    onConfirmDelete: (DiseaseActivity) -> Unit,
+) {
+    if (showCheckinDialog) {
+        QuickCheckinDialog(
+            onDismissRequest = onDismissCheckin,
+            onSaveCheckin = onSaveCheckin,
+        )
+    }
+
+    activityToDelete?.let { activity ->
+        DeleteActivityConfirmationDialog(
+            entryDate = activity.entryDate,
+            onDismissRequest = onDismissDelete,
+            onConfirmDelete = { onConfirmDelete(activity) },
         )
     }
 }
