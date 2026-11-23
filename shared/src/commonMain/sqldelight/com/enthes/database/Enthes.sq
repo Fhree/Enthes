@@ -25,3 +25,8 @@ INSERT INTO historic_disease_activity (
     has_active_flare,
     created_at
 ) VALUES (?, ?, ?, ?, ?, ?, ?);
+
+-- Delete a daily record by id
+deleteById:
+DELETE FROM historic_disease_activity
+WHERE id = ?;
