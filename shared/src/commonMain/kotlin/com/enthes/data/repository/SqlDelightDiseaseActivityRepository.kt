@@ -46,6 +46,18 @@ class SqlDelightDiseaseActivityRepository(
         }
     }
 
+    override suspend fun deleteActivity(id: String): Result<Unit> = withContext(Dispatchers.IO) {
+        val result = runCatching {
+            queries.deleteById(id)
+            Unit
+        }
+        val failure = result.exceptionOrNull()
+        if (failure is CancellationException) {
+            throw failure
+        }
+        result
+    }
+
     private fun Throwable.isUniqueConstraintViolation(): Boolean =
         generateSequence(this) { it.cause }.any { error ->
             val message = error.message.orEmpty()

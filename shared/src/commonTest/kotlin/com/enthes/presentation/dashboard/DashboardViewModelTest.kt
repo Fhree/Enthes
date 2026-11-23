@@ -227,4 +227,77 @@ class DashboardViewModelTest {
         val currentState = viewModel.uiState.value as DashboardUiState.Success
         assertEquals("Failed to save check-in. Please try again.", currentState.errorMessage)
     }
+
+    @Test
+    fun onDeleteActivityRemovesRecordAndTransitionsToEmptyWhenLastDeleted() = runTest(testDispatcher) {
+        val activity1 = DiseaseActivity(
+            id = "1",
+            entryDate = "2026-11-12",
+            morningStiffnessMinutes = 30,
+            globalPainLevel = 5,
+            fatigueLevel = 4,
+            hasActiveFlare = false,
+            createdAt = 1710000000000L,
+        )
+        val activity2 = DiseaseActivity(
+            id = "2",
+            entryDate = "2026-11-13",
+            morningStiffnessMinutes = 15,
+            globalPainLevel = 2,
+            fatigueLevel = 1,
+            hasActiveFlare = true,
+            createdAt = 1710086400000L,
+        )
+
+        val repo = FakeDiseaseActivityRepository(listOf(activity1, activity2))
+        val vm = DashboardViewModel(repo)
+
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            vm.uiState.collect {}
+        }
+        advanceUntilIdle()
+
+        vm.onEvent(DashboardEvent.OnDeleteActivity(activity1.id))
+        advanceUntilIdle()
+
+        assertEquals(
+            DashboardUiState.Success(activities = listOf(activity2), errorMessage = null),
+            vm.uiState.value,
+        )
+
+        vm.onEvent(DashboardEvent.OnDeleteActivity(activity2.id))
+        advanceUntilIdle()
+
+        assertEquals(DashboardUiState.Empty, vm.uiState.value)
+    }
+
+    @Test
+    fun onDeleteActivitySurfacesCleanErrorMessageOnFailure() = runTest(testDispatcher) {
+        val activity = DiseaseActivity(
+            id = "1",
+            entryDate = "2026-11-12",
+            morningStiffnessMinutes = 20,
+            globalPainLevel = 4,
+            fatigueLevel = 3,
+            hasActiveFlare = false,
+            createdAt = 1710000000000L,
+        )
+
+        val repo = FakeDiseaseActivityRepository(listOf(activity))
+        repo.shouldFailOnDelete = true
+        repo.deleteFailureException = IllegalStateException("SQLITE_IOERR: disk I/O error")
+        val vm = DashboardViewModel(repo)
+
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            vm.uiState.collect {}
+        }
+        advanceUntilIdle()
+
+        vm.onEvent(DashboardEvent.OnDeleteActivity(activity.id))
+        advanceUntilIdle()
+
+        val currentState = vm.uiState.value as DashboardUiState.Success
+        assertEquals(listOf(activity), currentState.activities)
+        assertEquals("Failed to delete check-in. Please try again.", currentState.errorMessage)
+    }
 }

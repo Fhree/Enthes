@@ -80,4 +80,37 @@ class DiseaseActivityDatabaseTest {
             )
         }
     }
+
+    @Test
+    fun testDeleteByIdRemovesTargetRecordWithoutAffectingOthers() {
+        val queries = database.enthesQueries
+
+        queries.insertDiseaseActivity(
+            id = "1",
+            entry_date = "2026-03-01",
+            morning_stiffness_minutes = 30L,
+            global_pain_level = 4L,
+            fatigue_level = 3L,
+            has_active_flare = 0L,
+            created_at = 1710000000000L,
+        )
+
+        queries.insertDiseaseActivity(
+            id = "2",
+            entry_date = "2026-03-02",
+            morning_stiffness_minutes = 45L,
+            global_pain_level = 6L,
+            fatigue_level = 5L,
+            has_active_flare = 1L,
+            created_at = 1710086400000L,
+        )
+
+        queries.deleteById("1")
+
+        val results = queries.selectAllDiseaseActivities().executeAsList()
+
+        assertEquals(1, results.size)
+        assertEquals("2", results[0].id)
+        assertEquals("2026-03-02", results[0].entry_date)
+    }
 }

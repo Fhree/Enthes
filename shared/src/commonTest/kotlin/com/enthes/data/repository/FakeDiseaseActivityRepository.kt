@@ -15,7 +15,9 @@ class FakeDiseaseActivityRepository(
     private val existingActivities = initialActivities.toMutableList()
 
     var shouldFailOnInsert: Boolean = false
+    var shouldFailOnDelete: Boolean = false
     var failureException: Throwable = IllegalStateException("Failed to insert activity")
+    var deleteFailureException: Throwable = IllegalStateException("Failed to delete activity")
 
     override fun getAllActivities(): Flow<List<DiseaseActivity>> = activitiesFlow.asStateFlow()
 
@@ -29,6 +31,14 @@ class FakeDiseaseActivityRepository(
             activitiesFlow.value = existingActivities.toList()
             Result.success(Unit)
         }
+    }
+
+    override suspend fun deleteActivity(id: String): Result<Unit> = if (shouldFailOnDelete) {
+        Result.failure(deleteFailureException)
+    } else {
+        existingActivities.removeAll { it.id == id }
+        activitiesFlow.value = existingActivities.toList()
+        Result.success(Unit)
     }
 
     fun emitActivities(activities: List<DiseaseActivity>) {

@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,10 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.enthes.domain.model.DiseaseActivity
+import enthes.shared.generated.resources.Res
+import enthes.shared.generated.resources.ic_delete
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun ActivityItemCard(
     activity: DiseaseActivity,
+    onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
@@ -40,6 +46,7 @@ fun ActivityItemCard(
             ActivityCardHeader(
                 entryDate = activity.entryDate,
                 hasActiveFlare = activity.hasActiveFlare,
+                onDeleteClick = onDeleteClick,
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -69,6 +76,7 @@ fun ActivityItemCard(
 private fun ActivityCardHeader(
     entryDate: String,
     hasActiveFlare: Boolean,
+    onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -82,17 +90,29 @@ private fun ActivityCardHeader(
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        if (hasActiveFlare) {
-            Surface(
-                shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.errorContainer,
-            ) {
-                Text(
-                    text = "Active Flare",
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onErrorContainer,
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (hasActiveFlare) {
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.errorContainer,
+                ) {
+                    Text(
+                        text = "Active Flare",
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                    )
+                }
+            }
+            IconButton(onClick = onDeleteClick) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_delete),
+                    contentDescription = "Delete record",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
