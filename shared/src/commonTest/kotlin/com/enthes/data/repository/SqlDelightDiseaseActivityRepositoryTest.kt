@@ -82,4 +82,35 @@ class SqlDelightDiseaseActivityRepositoryTest {
         val exception = assertIs<DuplicateEntryDateException>(result2.exceptionOrNull())
         assertEquals("2026-11-12", exception.entryDate)
     }
+
+    @Test
+    fun deleteActivityRemovesOnlyTargetRecordAndUpdatesFlow() = runBlocking {
+        val activity1 = DiseaseActivity(
+            id = "1",
+            entryDate = "2026-11-12",
+            morningStiffnessMinutes = 30,
+            globalPainLevel = 5,
+            fatigueLevel = 4,
+            hasActiveFlare = false,
+            createdAt = 1710000000000L,
+        )
+        val activity2 = DiseaseActivity(
+            id = "2",
+            entryDate = "2026-11-13",
+            morningStiffnessMinutes = 15,
+            globalPainLevel = 2,
+            fatigueLevel = 1,
+            hasActiveFlare = true,
+            createdAt = 1710086400000L,
+        )
+
+        assertTrue(repository.insertActivity(activity1).isSuccess)
+        assertTrue(repository.insertActivity(activity2).isSuccess)
+
+        val deleteResult = repository.deleteActivity(activity1.id)
+        assertTrue(deleteResult.isSuccess)
+
+        val remainingActivities = repository.getAllActivities().first()
+        assertEquals(listOf(activity2), remainingActivities)
+    }
 }
