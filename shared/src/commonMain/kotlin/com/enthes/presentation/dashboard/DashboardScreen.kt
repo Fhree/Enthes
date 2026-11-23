@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
@@ -14,6 +15,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -55,6 +57,7 @@ fun DashboardContent(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     var showCheckinDialog by remember { mutableStateOf(value = false) }
+    var activityToDelete by remember { mutableStateOf<DiseaseActivity?>(value = null) }
 
     if ((state is DashboardUiState.Success) && (state.errorMessage != null)) {
         LaunchedEffect(state.errorMessage) {
@@ -69,6 +72,17 @@ fun DashboardContent(
             onSaveCheckin = { activity ->
                 showCheckinDialog = false
                 onEvent(DashboardEvent.OnSaveCheckin(activity))
+            },
+        )
+    }
+
+    activityToDelete?.let { activity ->
+        DeleteActivityConfirmationDialog(
+            entryDate = activity.entryDate,
+            onDismissRequest = { activityToDelete = null },
+            onConfirmDelete = {
+                activityToDelete = null
+                onEvent(DashboardEvent.OnDeleteActivity(activity.id))
             },
         )
     }
@@ -98,6 +112,7 @@ fun DashboardContent(
     ) { paddingValues ->
         DashboardBody(
             state = state,
+            onDeleteActivity = { activityToDelete = it },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
@@ -106,8 +121,45 @@ fun DashboardContent(
 }
 
 @Composable
+private fun DeleteActivityConfirmationDialog(
+    entryDate: String,
+    onDismissRequest: () -> Unit,
+    onConfirmDelete: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = {
+            Text(
+                text = "Delete Check-in",
+                style = MaterialTheme.typography.titleLarge,
+            )
+        },
+        text = {
+            Text(
+                text = "Are you sure you want to delete the check-in for $entryDate?",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirmDelete) {
+                Text(
+                    text = "Delete",
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text("Cancel")
+            }
+        },
+    )
+}
+
+@Composable
 private fun DashboardBody(
     state: DashboardUiState,
+    onDeleteActivity: (DiseaseActivity) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when (state) {
@@ -137,7 +189,10 @@ private fun DashboardBody(
                         items = state.activities,
                         key = { (id) -> id },
                     ) { activity ->
-                        ActivityItemCard(activity = activity)
+                        ActivityItemCard(
+                            activity = activity,
+                            onDeleteClick = { onDeleteActivity(activity) },
+                        )
                     }
                 }
             }
