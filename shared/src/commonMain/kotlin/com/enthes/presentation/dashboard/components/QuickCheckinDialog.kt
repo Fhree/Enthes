@@ -32,26 +32,40 @@ import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalUuidApi::class)
+private const val MIN_LEVEL = 0
+private const val MAX_LEVEL = 10
+private const val DEFAULT_LEVEL = 3f
+private const val DEFAULT_STIFFNESS_MINUTES = "15"
+
 @Composable
 fun QuickCheckinDialog(
     onDismissRequest: () -> Unit,
     onSaveCheckin: (DiseaseActivity) -> Unit,
     modifier: Modifier = Modifier,
+    initialActivity: DiseaseActivity? = null,
 ) {
+    val isEditMode = initialActivity != null
     val todayDate = remember { Clock.System.todayIn(TimeZone.currentSystemDefault()).toString() }
-    var entryDate by remember { mutableStateOf(todayDate) }
-    var painLevel by remember { mutableFloatStateOf(3f) }
-    var fatigueLevel by remember { mutableFloatStateOf(3f) }
-    var stiffnessMinutes by remember { mutableStateOf("15") }
-    var hasActiveFlare by remember { mutableStateOf(value = false) }
+    var entryDate by remember(initialActivity) { mutableStateOf(initialActivity?.entryDate ?: todayDate) }
+    var painLevel by remember(initialActivity) {
+        mutableFloatStateOf(initialActivity?.globalPainLevel?.toFloat() ?: DEFAULT_LEVEL)
+    }
+    var fatigueLevel by remember(initialActivity) {
+        mutableFloatStateOf(initialActivity?.fatigueLevel?.toFloat() ?: DEFAULT_LEVEL)
+    }
+    var stiffnessMinutes by remember(initialActivity) {
+        mutableStateOf(initialActivity?.morningStiffnessMinutes?.toString() ?: DEFAULT_STIFFNESS_MINUTES)
+    }
+    var hasActiveFlare by remember(initialActivity) {
+        mutableStateOf(value = initialActivity?.hasActiveFlare ?: false)
+    }
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
         modifier = modifier,
         title = {
             Text(
-                text = "New Daily Check-in",
+                text = if (isEditMode) "Edit Daily Check-in" else "New Daily Check-in",
                 style = MaterialTheme.typography.titleLarge,
             )
         },
@@ -76,19 +90,19 @@ fun QuickCheckinDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    val activity = DiseaseActivity(
-                        id = Uuid.random().toString(),
-                        entryDate = entryDate.ifBlank { todayDate },
-                        morningStiffnessMinutes = stiffnessMinutes.toIntOrNull() ?: 0,
-                        globalPainLevel = painLevel.roundToInt().coerceIn(0, 10),
-                        fatigueLevel = fatigueLevel.roundToInt().coerceIn(0, 10),
+                    val activity = buildCheckinActivity(
+                        initialActivity = initialActivity,
+                        entryDate = entryDate,
+                        fallbackDate = todayDate,
+                        stiffnessMinutes = stiffnessMinutes,
+                        painLevel = painLevel,
+                        fatigueLevel = fatigueLevel,
                         hasActiveFlare = hasActiveFlare,
-                        createdAt = Clock.System.now().toEpochMilliseconds(),
                     )
                     onSaveCheckin(activity)
                 },
             ) {
-                Text("Save")
+                Text(if (isEditMode) "Update" else "Save")
             }
         },
         dismissButton = {
@@ -98,6 +112,25 @@ fun QuickCheckinDialog(
         },
     )
 }
+
+@OptIn(ExperimentalUuidApi::class)
+private fun buildCheckinActivity(
+    initialActivity: DiseaseActivity?,
+    entryDate: String,
+    fallbackDate: String,
+    stiffnessMinutes: String,
+    painLevel: Float,
+    fatigueLevel: Float,
+    hasActiveFlare: Boolean,
+): DiseaseActivity = DiseaseActivity(
+    id = initialActivity?.id ?: Uuid.random().toString(),
+    entryDate = entryDate.ifBlank { initialActivity?.entryDate ?: fallbackDate },
+    morningStiffnessMinutes = stiffnessMinutes.toIntOrNull() ?: 0,
+    globalPainLevel = painLevel.roundToInt().coerceIn(MIN_LEVEL, MAX_LEVEL),
+    fatigueLevel = fatigueLevel.roundToInt().coerceIn(MIN_LEVEL, MAX_LEVEL),
+    hasActiveFlare = hasActiveFlare,
+    createdAt = initialActivity?.createdAt ?: Clock.System.now().toEpochMilliseconds(),
+)
 
 @Composable
 private fun QuickCheckinForm(
