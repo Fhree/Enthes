@@ -300,4 +300,107 @@ class DashboardViewModelTest {
         assertEquals(listOf(activity), currentState.activities)
         assertEquals("Failed to delete check-in. Please try again.", currentState.errorMessage)
     }
+
+    @Test
+    fun onUpdateCheckinUpdatesActivitySuccessfully() = runTest(testDispatcher) {
+        val original = DiseaseActivity(
+            id = "1",
+            entryDate = "2026-11-12",
+            morningStiffnessMinutes = 30,
+            globalPainLevel = 5,
+            fatigueLevel = 4,
+            hasActiveFlare = false,
+            createdAt = 1710000000000L,
+        )
+        val updated = original.copy(
+            entryDate = "2026-11-14",
+            morningStiffnessMinutes = 60,
+            globalPainLevel = 8,
+            fatigueLevel = 7,
+            hasActiveFlare = true,
+        )
+
+        val repo = FakeDiseaseActivityRepository(listOf(original))
+        val vm = DashboardViewModel(repo)
+
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            vm.uiState.collect {}
+        }
+        advanceUntilIdle()
+
+        vm.onEvent(DashboardEvent.OnUpdateCheckin(updated))
+        advanceUntilIdle()
+
+        assertEquals(
+            DashboardUiState.Success(activities = listOf(updated), errorMessage = null),
+            vm.uiState.value,
+        )
+    }
+
+    @Test
+    fun onUpdateCheckinSurfacesErrorOnDuplicateDate() = runTest(testDispatcher) {
+        val activity1 = DiseaseActivity(
+            id = "1",
+            entryDate = "2026-11-12",
+            morningStiffnessMinutes = 30,
+            globalPainLevel = 5,
+            fatigueLevel = 4,
+            hasActiveFlare = false,
+            createdAt = 1710000000000L,
+        )
+        val activity2 = DiseaseActivity(
+            id = "2",
+            entryDate = "2026-11-13",
+            morningStiffnessMinutes = 15,
+            globalPainLevel = 2,
+            fatigueLevel = 1,
+            hasActiveFlare = true,
+            createdAt = 1710086400000L,
+        )
+
+        val repo = FakeDiseaseActivityRepository(listOf(activity1, activity2))
+        val vm = DashboardViewModel(repo)
+
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            vm.uiState.collect {}
+        }
+        advanceUntilIdle()
+
+        vm.onEvent(DashboardEvent.OnUpdateCheckin(activity2.copy(entryDate = "2026-11-12")))
+        advanceUntilIdle()
+
+        val currentState = vm.uiState.value as DashboardUiState.Success
+        assertEquals(listOf(activity1, activity2), currentState.activities)
+        assertEquals("A check-in for 2026-11-12 already exists.", currentState.errorMessage)
+    }
+
+    @Test
+    fun onUpdateCheckinDoesNotLeakRawErrorMessagesOnUnexpectedFailure() = runTest(testDispatcher) {
+        val activity = DiseaseActivity(
+            id = "1",
+            entryDate = "2026-11-12",
+            morningStiffnessMinutes = 20,
+            globalPainLevel = 4,
+            fatigueLevel = 3,
+            hasActiveFlare = false,
+            createdAt = 1710000000000L,
+        )
+
+        val repo = FakeDiseaseActivityRepository(listOf(activity))
+        repo.shouldFailOnUpdate = true
+        repo.updateFailureException = IllegalStateException("SQLITE_IOERR: disk I/O error")
+        val vm = DashboardViewModel(repo)
+
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            vm.uiState.collect {}
+        }
+        advanceUntilIdle()
+
+        vm.onEvent(DashboardEvent.OnUpdateCheckin(activity.copy(globalPainLevel = 7)))
+        advanceUntilIdle()
+
+        val currentState = vm.uiState.value as DashboardUiState.Success
+        assertEquals(listOf(activity), currentState.activities)
+        assertEquals("Failed to update check-in. Please try again.", currentState.errorMessage)
+    }
 }
