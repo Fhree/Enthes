@@ -46,18 +46,8 @@ fun QuickCheckinDialog(
 ) {
     val isEditMode = initialActivity != null
     val todayDate = remember { Clock.System.todayIn(TimeZone.currentSystemDefault()).toString() }
-    var entryDate by remember(initialActivity) { mutableStateOf(initialActivity?.entryDate ?: todayDate) }
-    var painLevel by remember(initialActivity) {
-        mutableFloatStateOf(initialActivity?.globalPainLevel?.toFloat() ?: DEFAULT_LEVEL)
-    }
-    var fatigueLevel by remember(initialActivity) {
-        mutableFloatStateOf(initialActivity?.fatigueLevel?.toFloat() ?: DEFAULT_LEVEL)
-    }
-    var stiffnessMinutes by remember(initialActivity) {
-        mutableStateOf(initialActivity?.morningStiffnessMinutes?.toString() ?: DEFAULT_STIFFNESS_MINUTES)
-    }
-    var hasActiveFlare by remember(initialActivity) {
-        mutableStateOf(value = initialActivity?.hasActiveFlare ?: false)
+    val formState = remember(initialActivity) {
+        QuickCheckinFormState(initialActivity = initialActivity, fallbackDate = todayDate)
     }
 
     AlertDialog(
@@ -69,39 +59,9 @@ fun QuickCheckinDialog(
                 style = MaterialTheme.typography.titleLarge,
             )
         },
-        text = {
-            QuickCheckinForm(
-                entryDate = entryDate,
-                onEntryDateChange = { entryDate = it },
-                painLevel = painLevel,
-                onPainLevelChange = { painLevel = it },
-                fatigueLevel = fatigueLevel,
-                onFatigueLevelChange = { fatigueLevel = it },
-                stiffnessMinutes = stiffnessMinutes,
-                onStiffnessMinutesChange = { input ->
-                    if (input.all { it.isDigit() }) {
-                        stiffnessMinutes = input
-                    }
-                },
-                hasActiveFlare = hasActiveFlare,
-                onHasActiveFlareChange = { hasActiveFlare = it },
-            )
-        },
+        text = { QuickCheckinForm(formState = formState) },
         confirmButton = {
-            TextButton(
-                onClick = {
-                    val activity = buildCheckinActivity(
-                        initialActivity = initialActivity,
-                        entryDate = entryDate,
-                        fallbackDate = todayDate,
-                        stiffnessMinutes = stiffnessMinutes,
-                        painLevel = painLevel,
-                        fatigueLevel = fatigueLevel,
-                        hasActiveFlare = hasActiveFlare,
-                    )
-                    onSaveCheckin(activity)
-                },
-            ) {
+            TextButton(onClick = { onSaveCheckin(formState.toDiseaseActivity()) }) {
                 Text(if (isEditMode) "Update" else "Save")
             }
         },
@@ -113,37 +73,39 @@ fun QuickCheckinDialog(
     )
 }
 
-@OptIn(ExperimentalUuidApi::class)
-private fun buildCheckinActivity(
-    initialActivity: DiseaseActivity?,
-    entryDate: String,
-    fallbackDate: String,
-    stiffnessMinutes: String,
-    painLevel: Float,
-    fatigueLevel: Float,
-    hasActiveFlare: Boolean,
-): DiseaseActivity = DiseaseActivity(
-    id = initialActivity?.id ?: Uuid.random().toString(),
-    entryDate = entryDate.ifBlank { initialActivity?.entryDate ?: fallbackDate },
-    morningStiffnessMinutes = stiffnessMinutes.toIntOrNull() ?: 0,
-    globalPainLevel = painLevel.roundToInt().coerceIn(MIN_LEVEL, MAX_LEVEL),
-    fatigueLevel = fatigueLevel.roundToInt().coerceIn(MIN_LEVEL, MAX_LEVEL),
-    hasActiveFlare = hasActiveFlare,
-    createdAt = initialActivity?.createdAt ?: Clock.System.now().toEpochMilliseconds(),
-)
+private class QuickCheckinFormState(
+    private val initialActivity: DiseaseActivity?,
+    private val fallbackDate: String,
+) {
+    var entryDate by mutableStateOf(initialActivity?.entryDate ?: fallbackDate)
+    var painLevel by mutableFloatStateOf(initialActivity?.globalPainLevel?.toFloat() ?: DEFAULT_LEVEL)
+    var fatigueLevel by mutableFloatStateOf(initialActivity?.fatigueLevel?.toFloat() ?: DEFAULT_LEVEL)
+    var stiffnessMinutes by mutableStateOf(
+        initialActivity?.morningStiffnessMinutes?.toString() ?: DEFAULT_STIFFNESS_MINUTES,
+    )
+    var hasActiveFlare by mutableStateOf(value = initialActivity?.hasActiveFlare ?: false)
+
+    fun updateStiffnessMinutes(input: String) {
+        if (input.all { it.isDigit() }) {
+            stiffnessMinutes = input
+        }
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun toDiseaseActivity(): DiseaseActivity = DiseaseActivity(
+        id = initialActivity?.id ?: Uuid.random().toString(),
+        entryDate = entryDate.ifBlank { initialActivity?.entryDate ?: fallbackDate },
+        morningStiffnessMinutes = stiffnessMinutes.toIntOrNull() ?: 0,
+        globalPainLevel = painLevel.roundToInt().coerceIn(MIN_LEVEL, MAX_LEVEL),
+        fatigueLevel = fatigueLevel.roundToInt().coerceIn(MIN_LEVEL, MAX_LEVEL),
+        hasActiveFlare = hasActiveFlare,
+        createdAt = initialActivity?.createdAt ?: Clock.System.now().toEpochMilliseconds(),
+    )
+}
 
 @Composable
 private fun QuickCheckinForm(
-    entryDate: String,
-    onEntryDateChange: (String) -> Unit,
-    painLevel: Float,
-    onPainLevelChange: (Float) -> Unit,
-    fatigueLevel: Float,
-    onFatigueLevelChange: (Float) -> Unit,
-    stiffnessMinutes: String,
-    onStiffnessMinutesChange: (String) -> Unit,
-    hasActiveFlare: Boolean,
-    onHasActiveFlareChange: (Boolean) -> Unit,
+    formState: QuickCheckinFormState,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -153,8 +115,8 @@ private fun QuickCheckinForm(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         OutlinedTextField(
-            value = entryDate,
-            onValueChange = onEntryDateChange,
+            value = formState.entryDate,
+            onValueChange = { formState.entryDate = it },
             label = { Text("Date (YYYY-MM-DD)") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
@@ -162,19 +124,19 @@ private fun QuickCheckinForm(
 
         CheckinSliderField(
             label = "Pain Level",
-            value = painLevel,
-            onValueChange = onPainLevelChange,
+            value = formState.painLevel,
+            onValueChange = { formState.painLevel = it },
         )
 
         CheckinSliderField(
             label = "Fatigue Level",
-            value = fatigueLevel,
-            onValueChange = onFatigueLevelChange,
+            value = formState.fatigueLevel,
+            onValueChange = { formState.fatigueLevel = it },
         )
 
         OutlinedTextField(
-            value = stiffnessMinutes,
-            onValueChange = onStiffnessMinutesChange,
+            value = formState.stiffnessMinutes,
+            onValueChange = formState::updateStiffnessMinutes,
             label = { Text("Morning Stiffness (minutes)") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
@@ -191,8 +153,8 @@ private fun QuickCheckinForm(
                 style = MaterialTheme.typography.bodyLarge,
             )
             Switch(
-                checked = hasActiveFlare,
-                onCheckedChange = onHasActiveFlareChange,
+                checked = formState.hasActiveFlare,
+                onCheckedChange = { formState.hasActiveFlare = it },
             )
         }
     }
