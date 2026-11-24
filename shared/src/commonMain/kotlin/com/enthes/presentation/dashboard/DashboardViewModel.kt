@@ -48,6 +48,20 @@ class DashboardViewModel(
                         }
                 }
             }
+            is DashboardEvent.OnUpdateCheckin -> {
+                viewModelScope.launch {
+                    repository.updateActivity(event.activity)
+                        .onSuccess {
+                            _errorMessage.value = null
+                        }
+                        .onFailure { error ->
+                            _errorMessage.value = mapErrorMessage(
+                                error = error,
+                                fallbackMessage = "Failed to update check-in. Please try again.",
+                            )
+                        }
+                }
+            }
             is DashboardEvent.OnDeleteActivity -> {
                 viewModelScope.launch {
                     repository.deleteActivity(event.id)
@@ -65,10 +79,13 @@ class DashboardViewModel(
         }
     }
 
-    private fun mapErrorMessage(error: Throwable): String = when (error) {
+    private fun mapErrorMessage(
+        error: Throwable,
+        fallbackMessage: String = "Failed to save check-in. Please try again.",
+    ): String = when (error) {
         is DuplicateEntryDateException -> {
             "A check-in for ${error.entryDate} already exists."
         }
-        else -> "Failed to save check-in. Please try again."
+        else -> fallbackMessage
     }
 }

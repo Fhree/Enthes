@@ -6,5 +6,6 @@ import kotlinx.coroutines.flow.Flow
 interface DiseaseActivityRepository {
     fun getAllActivities(): Flow<List<DiseaseActivity>>
     suspend fun insertActivity(activity: DiseaseActivity): Result<Unit>
+    suspend fun updateActivity(activity: DiseaseActivity): Result<Unit>
     suspend fun deleteActivity(id: String): Result<Unit>
 }

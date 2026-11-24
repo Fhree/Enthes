@@ -49,6 +49,13 @@ fun DashboardScreen(
     )
 }
 
+private sealed interface DashboardDialogState {
+    data object None : DashboardDialogState
+    data object CreateCheckin : DashboardDialogState
+    data class EditCheckin(val activity: DiseaseActivity) : DashboardDialogState
+    data class ConfirmDelete(val activity: DiseaseActivity) : DashboardDialogState
+}
+
 @Composable
 fun DashboardContent(
     state: DashboardUiState,
@@ -56,8 +63,7 @@ fun DashboardContent(
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    var showCheckinDialog by remember { mutableStateOf(value = false) }
-    var activityToDelete by remember { mutableStateOf<DiseaseActivity?>(value = null) }
+    var dialogState by remember { mutableStateOf<DashboardDialogState>(DashboardDialogState.None) }
 
     if ((state is DashboardUiState.Success) && (state.errorMessage != null)) {
         LaunchedEffect(state.errorMessage) {
@@ -67,17 +73,11 @@ fun DashboardContent(
     }
 
     DashboardDialogs(
-        showCheckinDialog = showCheckinDialog,
-        activityToDelete = activityToDelete,
-        onDismissCheckin = { showCheckinDialog = false },
-        onSaveCheckin = { activity ->
-            showCheckinDialog = false
-            onEvent(DashboardEvent.OnSaveCheckin(activity))
-        },
-        onDismissDelete = { activityToDelete = null },
-        onConfirmDelete = { activity ->
-            activityToDelete = null
-            onEvent(DashboardEvent.OnDeleteActivity(activity.id))
+        dialogState = dialogState,
+        onDismiss = { dialogState = DashboardDialogState.None },
+        onEvent = { event ->
+            dialogState = DashboardDialogState.None
+            onEvent(event)
         },
     )
 
@@ -94,7 +94,7 @@ fun DashboardContent(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { showCheckinDialog = true },
+                onClick = { dialogState = DashboardDialogState.CreateCheckin },
             ) {
                 Text(
                     text = "+",
@@ -106,7 +106,8 @@ fun DashboardContent(
     ) { paddingValues ->
         DashboardBody(
             state = state,
-            onDeleteActivity = { activityToDelete = it },
+            onEditActivity = { dialogState = DashboardDialogState.EditCheckin(it) },
+            onDeleteActivity = { dialogState = DashboardDialogState.ConfirmDelete(it) },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
@@ -116,26 +117,34 @@ fun DashboardContent(
 
 @Composable
 private fun DashboardDialogs(
-    showCheckinDialog: Boolean,
-    activityToDelete: DiseaseActivity?,
-    onDismissCheckin: () -> Unit,
-    onSaveCheckin: (DiseaseActivity) -> Unit,
-    onDismissDelete: () -> Unit,
-    onConfirmDelete: (DiseaseActivity) -> Unit,
+    dialogState: DashboardDialogState,
+    onDismiss: () -> Unit,
+    onEvent: (DashboardEvent) -> Unit,
 ) {
-    if (showCheckinDialog) {
-        QuickCheckinDialog(
-            onDismissRequest = onDismissCheckin,
-            onSaveCheckin = onSaveCheckin,
-        )
-    }
+    when (dialogState) {
+        DashboardDialogState.None -> Unit
+        DashboardDialogState.CreateCheckin -> {
+            QuickCheckinDialog(
+                onDismissRequest = onDismiss,
+                onSaveCheckin = { activity -> onEvent(DashboardEvent.OnSaveCheckin(activity)) },
+            )
+        }
 
-    activityToDelete?.let { activity ->
-        DeleteActivityConfirmationDialog(
-            entryDate = activity.entryDate,
-            onDismissRequest = onDismissDelete,
-            onConfirmDelete = { onConfirmDelete(activity) },
-        )
+        is DashboardDialogState.EditCheckin -> {
+            QuickCheckinDialog(
+                initialActivity = dialogState.activity,
+                onDismissRequest = onDismiss,
+                onSaveCheckin = { activity -> onEvent(DashboardEvent.OnUpdateCheckin(activity)) },
+            )
+        }
+
+        is DashboardDialogState.ConfirmDelete -> {
+            DeleteActivityConfirmationDialog(
+                entryDate = dialogState.activity.entryDate,
+                onDismissRequest = onDismiss,
+                onConfirmDelete = { onEvent(DashboardEvent.OnDeleteActivity(dialogState.activity.id)) },
+            )
+        }
     }
 }
 
@@ -178,6 +187,7 @@ private fun DeleteActivityConfirmationDialog(
 @Composable
 private fun DashboardBody(
     state: DashboardUiState,
+    onEditActivity: (DiseaseActivity) -> Unit,
     onDeleteActivity: (DiseaseActivity) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -210,6 +220,7 @@ private fun DashboardBody(
                     ) { activity ->
                         ActivityItemCard(
                             activity = activity,
+                            onEditClick = { onEditActivity(activity) },
                             onDeleteClick = { onDeleteActivity(activity) },
                         )
                     }

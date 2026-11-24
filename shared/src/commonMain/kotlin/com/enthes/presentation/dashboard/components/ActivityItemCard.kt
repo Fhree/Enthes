@@ -28,10 +28,12 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun ActivityItemCard(
     activity: DiseaseActivity,
+    onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
+        onClick = onEditClick,
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(

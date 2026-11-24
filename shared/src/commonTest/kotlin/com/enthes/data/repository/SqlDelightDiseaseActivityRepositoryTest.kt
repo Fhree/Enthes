@@ -113,4 +113,78 @@ class SqlDelightDiseaseActivityRepositoryTest {
         val remainingActivities = repository.getAllActivities().first()
         assertEquals(listOf(activity2), remainingActivities)
     }
+
+    @Test
+    fun updateActivityPersistsModifiedFieldsAndUpdatesFlow() = runBlocking {
+        val activity1 = DiseaseActivity(
+            id = "1",
+            entryDate = "2026-11-12",
+            morningStiffnessMinutes = 30,
+            globalPainLevel = 5,
+            fatigueLevel = 4,
+            hasActiveFlare = false,
+            createdAt = 1710000000000L,
+        )
+        val activity2 = DiseaseActivity(
+            id = "2",
+            entryDate = "2026-11-13",
+            morningStiffnessMinutes = 15,
+            globalPainLevel = 2,
+            fatigueLevel = 1,
+            hasActiveFlare = true,
+            createdAt = 1710086400000L,
+        )
+
+        assertTrue(repository.insertActivity(activity1).isSuccess)
+        assertTrue(repository.insertActivity(activity2).isSuccess)
+
+        val updatedActivity1 = activity1.copy(
+            entryDate = "2026-11-15",
+            morningStiffnessMinutes = 60,
+            globalPainLevel = 8,
+            fatigueLevel = 7,
+            hasActiveFlare = true,
+        )
+
+        val updateResult = repository.updateActivity(updatedActivity1)
+        assertTrue(updateResult.isSuccess)
+
+        val activities = repository.getAllActivities().first()
+        assertEquals(listOf(updatedActivity1, activity2), activities)
+    }
+
+    @Test
+    fun updateActivityWithDuplicateEntryDateReturnsFailureResult() = runBlocking {
+        val activity1 = DiseaseActivity(
+            id = "1",
+            entryDate = "2026-11-12",
+            morningStiffnessMinutes = 30,
+            globalPainLevel = 5,
+            fatigueLevel = 4,
+            hasActiveFlare = false,
+            createdAt = 1710000000000L,
+        )
+        val activity2 = DiseaseActivity(
+            id = "2",
+            entryDate = "2026-11-13",
+            morningStiffnessMinutes = 15,
+            globalPainLevel = 2,
+            fatigueLevel = 1,
+            hasActiveFlare = true,
+            createdAt = 1710086400000L,
+        )
+
+        assertTrue(repository.insertActivity(activity1).isSuccess)
+        assertTrue(repository.insertActivity(activity2).isSuccess)
+
+        val conflictingUpdate = activity2.copy(entryDate = "2026-11-12")
+        val updateResult = repository.updateActivity(conflictingUpdate)
+
+        assertTrue(updateResult.isFailure)
+        val exception = assertIs<DuplicateEntryDateException>(updateResult.exceptionOrNull())
+        assertEquals("2026-11-12", exception.entryDate)
+
+        val activities = repository.getAllActivities().first()
+        assertEquals(listOf(activity2, activity1), activities)
+    }
 }
