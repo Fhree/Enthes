@@ -39,3 +39,14 @@ fun EnthesQueries.insertDiseaseActivity(activity: DiseaseActivity) {
         created_at = activity.createdAt,
     )
 }
+
+fun EnthesQueries.updateActivity(activity: DiseaseActivity) {
+    updateActivity(
+        entry_date = activity.entryDate,
+        morning_stiffness_minutes = activity.morningStiffnessMinutes.toLong(),
+        global_pain_level = activity.globalPainLevel.toLong(),
+        fatigue_level = activity.fatigueLevel.toLong(),
+        has_active_flare = if (activity.hasActiveFlare) 1L else 0L,
+        id = activity.id,
+    )
+}

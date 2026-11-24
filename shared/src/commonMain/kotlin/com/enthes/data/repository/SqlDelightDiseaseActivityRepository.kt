@@ -4,6 +4,7 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.enthes.data.mapper.insertDiseaseActivity
 import com.enthes.data.mapper.toDomain
+import com.enthes.data.mapper.updateActivity
 import com.enthes.database.DatabaseDriverFactory
 import com.enthes.database.EnthesDatabase
 import com.enthes.domain.error.DuplicateEntryDateException
@@ -31,20 +32,15 @@ class SqlDelightDiseaseActivityRepository(
             .map { list -> list.map { it.toDomain() } }
     }
 
-    override suspend fun insertActivity(activity: DiseaseActivity): Result<Unit> = withContext(Dispatchers.IO) {
-        val result = runCatching {
+    override suspend fun insertActivity(activity: DiseaseActivity): Result<Unit> =
+        executeActivityWrite(activity.entryDate) {
             queries.insertDiseaseActivity(activity)
         }
-        val failure = result.exceptionOrNull()
-        when {
-            failure == null -> result
-            failure is CancellationException -> throw failure
-            failure.isUniqueConstraintViolation() -> {
-                Result.failure(DuplicateEntryDateException(activity.entryDate, failure))
-            }
-            else -> result
+
+    override suspend fun updateActivity(activity: DiseaseActivity): Result<Unit> =
+        executeActivityWrite(activity.entryDate) {
+            queries.updateActivity(activity)
         }
-    }
 
     override suspend fun deleteActivity(id: String): Result<Unit> = withContext(Dispatchers.IO) {
         val result = runCatching {
@@ -56,6 +52,22 @@ class SqlDelightDiseaseActivityRepository(
             throw failure
         }
         result
+    }
+
+    private suspend fun executeActivityWrite(
+        entryDate: String,
+        block: () -> Unit,
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        val result = runCatching(block)
+        val failure = result.exceptionOrNull()
+        when {
+            failure == null -> result
+            failure is CancellationException -> throw failure
+            failure.isUniqueConstraintViolation() -> {
+                Result.failure(DuplicateEntryDateException(entryDate, failure))
+            }
+            else -> result
+        }
     }
 
     private fun Throwable.isUniqueConstraintViolation(): Boolean =
