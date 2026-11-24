@@ -30,3 +30,13 @@ INSERT INTO historic_disease_activity (
 deleteById:
 DELETE FROM historic_disease_activity
 WHERE id = ?;
+
+-- Update an existing daily record by id
+updateActivity:
+UPDATE historic_disease_activity
+SET entry_date = ?,
+    morning_stiffness_minutes = ?,
+    global_pain_level = ?,
+    fatigue_level = ?,
+    has_active_flare = ?
+WHERE id = ?;
