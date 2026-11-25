@@ -80,12 +80,12 @@ class DashboardViewModelTest {
         assertEquals(
             listOf(
                 DashboardUiState.Loading,
-                DashboardUiState.Success(activities = listOf(activity), errorMessage = null),
+                DashboardUiState.Success(activities = listOf(activity), error = null),
             ),
             states,
         )
         assertEquals(
-            DashboardUiState.Success(activities = listOf(activity), errorMessage = null),
+            DashboardUiState.Success(activities = listOf(activity), error = null),
             vm.uiState.value,
         )
     }
@@ -120,7 +120,7 @@ class DashboardViewModelTest {
         advanceUntilIdle()
 
         assertEquals(
-            DashboardUiState.Success(activities = listOf(activity1), errorMessage = null),
+            DashboardUiState.Success(activities = listOf(activity1), error = null),
             vm.uiState.value,
         )
 
@@ -130,11 +130,11 @@ class DashboardViewModelTest {
         val currentState = vm.uiState.value
         assertTrue(currentState is DashboardUiState.Success)
         assertEquals(listOf(activity1), currentState.activities)
-        assertEquals("A check-in for 2026-11-12 already exists.", currentState.errorMessage)
+        assertEquals(DashboardError.DuplicateDate(LocalDate(2026, 11, 12)), currentState.error)
     }
 
     @Test
-    fun onDismissErrorClearsErrorMessage() = runTest(testDispatcher) {
+    fun onDismissErrorClearsError() = runTest(testDispatcher) {
         val activity1 = DiseaseActivity(
             id = "1",
             entryDate = LocalDate(2026, 11, 12),
@@ -166,13 +166,13 @@ class DashboardViewModelTest {
         advanceUntilIdle()
 
         val errorState = vm.uiState.value as DashboardUiState.Success
-        assertNotNull(errorState.errorMessage)
+        assertNotNull(errorState.error)
 
         vm.onEvent(DashboardEvent.OnDismissError)
         advanceUntilIdle()
 
         val dismissedState = vm.uiState.value as DashboardUiState.Success
-        assertNull(dismissedState.errorMessage)
+        assertNull(dismissedState.error)
     }
 
     @Test
@@ -197,7 +197,7 @@ class DashboardViewModelTest {
         advanceUntilIdle()
 
         assertEquals(
-            DashboardUiState.Success(activities = listOf(activity1), errorMessage = null),
+            DashboardUiState.Success(activities = listOf(activity1), error = null),
             viewModel.uiState.value,
         )
     }
@@ -226,7 +226,7 @@ class DashboardViewModelTest {
         advanceUntilIdle()
 
         val currentState = viewModel.uiState.value as DashboardUiState.Success
-        assertEquals("Failed to save check-in. Please try again.", currentState.errorMessage)
+        assertEquals(DashboardError.SaveFailed, currentState.error)
     }
 
     @Test
@@ -262,7 +262,7 @@ class DashboardViewModelTest {
         advanceUntilIdle()
 
         assertEquals(
-            DashboardUiState.Success(activities = listOf(activity2), errorMessage = null),
+            DashboardUiState.Success(activities = listOf(activity2), error = null),
             vm.uiState.value,
         )
 
@@ -299,7 +299,7 @@ class DashboardViewModelTest {
 
         val currentState = vm.uiState.value as DashboardUiState.Success
         assertEquals(listOf(activity), currentState.activities)
-        assertEquals("Failed to delete check-in. Please try again.", currentState.errorMessage)
+        assertEquals(DashboardError.DeleteFailed, currentState.error)
     }
 
     @Test
@@ -333,7 +333,7 @@ class DashboardViewModelTest {
         advanceUntilIdle()
 
         assertEquals(
-            DashboardUiState.Success(activities = listOf(updated), errorMessage = null),
+            DashboardUiState.Success(activities = listOf(updated), error = null),
             vm.uiState.value,
         )
     }
@@ -372,7 +372,7 @@ class DashboardViewModelTest {
 
         val currentState = vm.uiState.value as DashboardUiState.Success
         assertEquals(listOf(activity1, activity2), currentState.activities)
-        assertEquals("A check-in for 2026-11-12 already exists.", currentState.errorMessage)
+        assertEquals(DashboardError.DuplicateDate(LocalDate(2026, 11, 12)), currentState.error)
     }
 
     @Test
@@ -402,6 +402,6 @@ class DashboardViewModelTest {
 
         val currentState = vm.uiState.value as DashboardUiState.Success
         assertEquals(listOf(activity), currentState.activities)
-        assertEquals("Failed to update check-in. Please try again.", currentState.errorMessage)
+        assertEquals(DashboardError.UpdateFailed, currentState.error)
     }
 }
