@@ -15,6 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import enthes.shared.generated.resources.Res
+import enthes.shared.generated.resources.empty_dashboard_subtitle
+import enthes.shared.generated.resources.empty_dashboard_title
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun EmptyDashboardPlaceholder(
@@ -31,14 +35,14 @@ fun EmptyDashboardPlaceholder(
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
-                text = "No records yet",
+                text = stringResource(Res.string.empty_dashboard_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Start tracking your disease activity by logging your daily check-in.",
+                text = stringResource(Res.string.empty_dashboard_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

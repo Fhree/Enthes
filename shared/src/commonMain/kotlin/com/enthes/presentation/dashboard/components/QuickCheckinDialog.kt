@@ -25,9 +25,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.enthes.domain.model.DiseaseActivity
+import enthes.shared.generated.resources.Res
+import enthes.shared.generated.resources.action_cancel
+import enthes.shared.generated.resources.action_save
+import enthes.shared.generated.resources.action_update
+import enthes.shared.generated.resources.checkin_date_error
+import enthes.shared.generated.resources.checkin_date_label
+import enthes.shared.generated.resources.checkin_dialog_title_edit
+import enthes.shared.generated.resources.checkin_dialog_title_new
+import enthes.shared.generated.resources.checkin_fatigue_level
+import enthes.shared.generated.resources.checkin_pain_level
+import enthes.shared.generated.resources.checkin_slider_value
+import enthes.shared.generated.resources.checkin_stiffness_label
+import enthes.shared.generated.resources.label_active_flare
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
@@ -56,7 +70,13 @@ fun QuickCheckinDialog(
         modifier = modifier,
         title = {
             Text(
-                text = if (isEditMode) "Edit Daily Check-in" else "New Daily Check-in",
+                text = stringResource(
+                    if (isEditMode) {
+                        Res.string.checkin_dialog_title_edit
+                    } else {
+                        Res.string.checkin_dialog_title_new
+                    },
+                ),
                 style = MaterialTheme.typography.titleLarge,
             )
         },
@@ -66,12 +86,16 @@ fun QuickCheckinDialog(
                 onClick = { formState.toDiseaseActivity()?.let(onSaveCheckin) },
                 enabled = !formState.isDateError,
             ) {
-                Text(if (isEditMode) "Update" else "Save")
+                Text(
+                    stringResource(
+                        if (isEditMode) Res.string.action_update else Res.string.action_save,
+                    ),
+                )
             }
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text("Cancel")
+                Text(stringResource(Res.string.action_cancel))
             }
         },
     )
@@ -133,10 +157,10 @@ private fun QuickCheckinForm(
         OutlinedTextField(
             value = formState.entryDateText,
             onValueChange = { formState.entryDateText = it },
-            label = { Text("Date (YYYY-MM-DD)") },
+            label = { Text(stringResource(Res.string.checkin_date_label)) },
             isError = formState.isDateError,
             supportingText = if (formState.isDateError) {
-                { Text("Use YYYY-MM-DD format") }
+                { Text(stringResource(Res.string.checkin_date_error)) }
             } else {
                 null
             },
@@ -145,13 +169,13 @@ private fun QuickCheckinForm(
         )
 
         CheckinSliderField(
-            label = "Pain Level",
+            label = stringResource(Res.string.checkin_pain_level),
             value = formState.painLevel,
             onValueChange = { formState.painLevel = it },
         )
 
         CheckinSliderField(
-            label = "Fatigue Level",
+            label = stringResource(Res.string.checkin_fatigue_level),
             value = formState.fatigueLevel,
             onValueChange = { formState.fatigueLevel = it },
         )
@@ -159,7 +183,7 @@ private fun QuickCheckinForm(
         OutlinedTextField(
             value = formState.stiffnessMinutes,
             onValueChange = formState::updateStiffnessMinutes,
-            label = { Text("Morning Stiffness (minutes)") },
+            label = { Text(stringResource(Res.string.checkin_stiffness_label)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
@@ -171,7 +195,7 @@ private fun QuickCheckinForm(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Active Flare",
+                text = stringResource(Res.string.label_active_flare),
                 style = MaterialTheme.typography.bodyLarge,
             )
             Switch(
@@ -191,7 +215,7 @@ private fun CheckinSliderField(
 ) {
     Column(modifier = modifier) {
         Text(
-            text = "$label: ${value.roundToInt()}/10",
+            text = stringResource(Res.string.checkin_slider_value, label, value.roundToInt()),
             style = MaterialTheme.typography.bodyMedium,
         )
         Slider(
