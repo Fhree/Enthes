@@ -41,4 +41,53 @@
     <string name="error_save_failed">No se pudo guardar el registro. Inténtalo de nuevo.</string>
     <string name="error_update_failed">No se pudo actualizar el registro. Inténtalo de nuevo.</string>
     <string name="error_delete_failed">No se pudo eliminar el registro. Inténtalo de nuevo.</string>
+    <string name="error_load_failed">No se pudo cargar este registro.</string>
+
+    <!-- Check-in wizard -->
+    <string name="cd_add_checkin">Nuevo registro diario</string>
+    <string name="cd_navigate_back">Volver</string>
+    <string name="wizard_step_indicator">Paso %1$d de %2$d</string>
+    <string name="wizard_step_pain_title">¿Cómo es tu dolor hoy?</string>
+    <string name="wizard_step_fatigue_title">¿Cómo es tu fatiga hoy?</string>
+    <string name="wizard_step_stiffness_title">Duración de la rigidez matutina</string>
+    <string name="wizard_step_flare_zones_title">Brote activo y zonas de dolor</string>
+    <string name="wizard_step_summary_title_new">Revisar registro diario</string>
+    <string name="wizard_step_summary_title_edit">Editar registro diario</string>
+
+    <!-- EVA anchors -->
+    <string name="eva_pain_anchor_low">Sin dolor</string>
+    <string name="eva_pain_anchor_mid">Dolor moderado</string>
+    <string name="eva_pain_anchor_high">Dolor insoportable</string>
+    <string name="eva_fatigue_anchor_low">Sin fatiga</string>
+    <string name="eva_fatigue_anchor_mid">Fatiga moderada</string>
+    <string name="eva_fatigue_anchor_high">Agotamiento extremo</string>
+
+    <!-- Stiffness ranges -->
+    <string name="stiffness_none">Ninguna (0 min)</string>
+    <string name="stiffness_under_30_min">&lt; 30 min</string>
+    <string name="stiffness_30_to_60_min">30–60 min</string>
+    <string name="stiffness_1_to_2_hours">1–2 h</string>
+    <string name="stiffness_over_2_hours">&gt; 2 h</string>
+
+    <!-- Flare & pain zones -->
+    <string name="wizard_flare_question">¿Estás sufriendo un brote activo?</string>
+    <string name="action_yes">Sí</string>
+    <string name="action_no">No</string>
+    <string name="wizard_pain_zones_section">Zonas de dolor localizado (opcional)</string>
+    <string name="pain_zone_lumbar">Lumbar</string>
+    <string name="pain_zone_cervical">Cervical</string>
+    <string name="pain_zone_knees">Rodillas</string>
+    <string name="pain_zone_hands">Manos</string>
+    <string name="pain_zone_feet_heels">Pies y talones</string>
+    <string name="pain_zone_shoulders_elbows">Hombros y codos</string>
+    <string name="action_review_summary">Revisar resumen</string>
+
+    <!-- Summary & date selection -->
+    <string name="wizard_date_section">Fecha del registro</string>
+    <string name="date_today">Hoy</string>
+    <string name="date_yesterday">Ayer</string>
+    <string name="date_other">Otra fecha</string>
+    <string name="action_confirm">Confirmar</string>
+    <string name="summary_pain_zones_none">Ninguna</string>
+    <string name="summary_tap_to_edit">Toca para editar</string>
 </resources>
