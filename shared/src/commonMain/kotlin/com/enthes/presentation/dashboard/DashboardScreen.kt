@@ -66,9 +66,10 @@ fun DashboardContent(
     val snackbarHostState = remember { SnackbarHostState() }
     var dialogState by remember { mutableStateOf<DashboardDialogState>(DashboardDialogState.None) }
 
-    if ((state is DashboardUiState.Success) && (state.errorMessage != null)) {
-        LaunchedEffect(state.errorMessage) {
-            snackbarHostState.showSnackbar(message = state.errorMessage)
+    if ((state is DashboardUiState.Success) && (state.error != null)) {
+        val errorMessage = state.error.toDisplayMessage()
+        LaunchedEffect(state.error) {
+            snackbarHostState.showSnackbar(message = errorMessage)
             onEvent(DashboardEvent.OnDismissError)
         }
     }
@@ -229,6 +230,13 @@ private fun DashboardBody(
             }
         }
     }
+}
+
+private fun DashboardError.toDisplayMessage(): String = when (this) {
+    is DashboardError.DuplicateDate -> "A check-in for $date already exists."
+    DashboardError.SaveFailed -> "Failed to save check-in. Please try again."
+    DashboardError.UpdateFailed -> "Failed to update check-in. Please try again."
+    DashboardError.DeleteFailed -> "Failed to delete check-in. Please try again."
 }
 
 @Preview
