@@ -26,24 +26,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.enthes.domain.model.DiseaseActivity
+import com.enthes.domain.model.PainZone
 import com.enthes.presentation.dashboard.components.ActivityItemCard
 import com.enthes.presentation.dashboard.components.EmptyDashboardPlaceholder
-import com.enthes.presentation.dashboard.components.QuickCheckinDialog
 import com.enthes.presentation.theme.EnthesTheme
 import enthes.shared.generated.resources.Res
 import enthes.shared.generated.resources.action_cancel
 import enthes.shared.generated.resources.action_delete
+import enthes.shared.generated.resources.cd_add_checkin
 import enthes.shared.generated.resources.dashboard_title
 import enthes.shared.generated.resources.delete_dialog_message
 import enthes.shared.generated.resources.delete_dialog_title
 import enthes.shared.generated.resources.error_delete_failed
-import enthes.shared.generated.resources.error_duplicate_date
-import enthes.shared.generated.resources.error_save_failed
-import enthes.shared.generated.resources.error_update_failed
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -66,13 +66,6 @@ fun DashboardScreen(
     )
 }
 
-private sealed interface DashboardDialogState {
-    data object None : DashboardDialogState
-    data object CreateCheckin : DashboardDialogState
-    data class EditCheckin(val activity: DiseaseActivity) : DashboardDialogState
-    data class ConfirmDelete(val activity: DiseaseActivity) : DashboardDialogState
-}
-
 @Composable
 fun DashboardContent(
     state: DashboardUiState,
@@ -82,7 +75,7 @@ fun DashboardContent(
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    var dialogState by remember { mutableStateOf<DashboardDialogState>(DashboardDialogState.None) }
+    var activityPendingDelete by remember { mutableStateOf<DiseaseActivity?>(null) }
 
     if ((state is DashboardUiState.Success) && (state.error != null)) {
         val errorMessage = state.error.toDisplayMessage()
@@ -92,13 +85,17 @@ fun DashboardContent(
         }
     }
 
-    DashboardDialogs(
-        dialogState = dialogState,
-        onDismiss = { dialogState = DashboardDialogState.None },
-    ) { event ->
-        dialogState = DashboardDialogState.None
-        onEvent(event)
+    activityPendingDelete?.let { activity ->
+        DeleteActivityConfirmationDialog(
+            entryDate = activity.entryDate,
+            onDismissRequest = { activityPendingDelete = null },
+        ) {
+            activityPendingDelete = null
+            onEvent(DashboardEvent.OnDeleteActivity(activity.id))
+        }
     }
+
+    val addCheckinContentDescription = stringResource(Res.string.cd_add_checkin)
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -114,6 +111,9 @@ fun DashboardContent(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddCheckin,
+                modifier = Modifier.semantics {
+                    contentDescription = addCheckinContentDescription
+                },
             ) {
                 Text(
                     text = "+",
@@ -126,45 +126,11 @@ fun DashboardContent(
         DashboardBody(
             state = state,
             onEditActivity = { onEditActivity(it.id) },
-            onDeleteActivity = { dialogState = DashboardDialogState.ConfirmDelete(it) },
+            onDeleteActivity = { activityPendingDelete = it },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
         )
-    }
-}
-
-@Composable
-private fun DashboardDialogs(
-    dialogState: DashboardDialogState,
-    onDismiss: () -> Unit,
-    onEvent: (DashboardEvent) -> Unit,
-) {
-    when (dialogState) {
-        DashboardDialogState.None -> Unit
-        DashboardDialogState.CreateCheckin -> {
-            QuickCheckinDialog(
-                onDismissRequest = onDismiss,
-                onSaveCheckin = { activity -> onEvent(DashboardEvent.OnSaveCheckin(activity)) },
-            )
-        }
-
-        is DashboardDialogState.EditCheckin -> {
-            QuickCheckinDialog(
-                initialActivity = dialogState.activity,
-                onDismissRequest = onDismiss,
-                onSaveCheckin = { activity -> onEvent(DashboardEvent.OnUpdateCheckin(activity)) },
-            )
-        }
-
-        is DashboardDialogState.ConfirmDelete -> {
-            DeleteActivityConfirmationDialog(
-                entryDate = dialogState.activity.entryDate,
-                onDismissRequest = onDismiss,
-            ) {
-                onEvent(DashboardEvent.OnDeleteActivity(dialogState.activity.id))
-            }
-        }
     }
 }
 
@@ -252,9 +218,6 @@ private fun DashboardBody(
 
 @Composable
 private fun DashboardError.toDisplayMessage(): String = when (this) {
-    is DashboardError.DuplicateDate -> stringResource(Res.string.error_duplicate_date, date.toString())
-    DashboardError.SaveFailed -> stringResource(Res.string.error_save_failed)
-    DashboardError.UpdateFailed -> stringResource(Res.string.error_update_failed)
     DashboardError.DeleteFailed -> stringResource(Res.string.error_delete_failed)
 }
 
@@ -286,6 +249,7 @@ private fun DashboardContentSuccessPreview() {
                         fatigueLevel = 7,
                         hasActiveFlare = true,
                         createdAt = 1710000000000L,
+                        painZones = setOf(PainZone.LUMBAR, PainZone.KNEES),
                     ),
                     DiseaseActivity(
                         id = "2",

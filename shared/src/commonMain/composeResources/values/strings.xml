@@ -20,16 +20,6 @@
     <string name="delete_dialog_title">Delete Check-in</string>
     <string name="delete_dialog_message">Are you sure you want to delete the check-in for %1$s?</string>
 
-    <!-- Quick check-in dialog -->
-    <string name="checkin_dialog_title_new">New Daily Check-in</string>
-    <string name="checkin_dialog_title_edit">Edit Daily Check-in</string>
-    <string name="checkin_date_label">Date (YYYY-MM-DD)</string>
-    <string name="checkin_date_error">Use YYYY-MM-DD format</string>
-    <string name="checkin_pain_level">Pain Level</string>
-    <string name="checkin_fatigue_level">Fatigue Level</string>
-    <string name="checkin_stiffness_label">Morning Stiffness (minutes)</string>
-    <string name="checkin_slider_value">%1$s: %2$d/10</string>
-
     <!-- Common actions -->
     <string name="action_save">Save</string>
     <string name="action_update">Update</string>
