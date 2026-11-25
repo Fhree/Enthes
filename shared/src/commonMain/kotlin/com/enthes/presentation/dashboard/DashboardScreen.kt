@@ -33,6 +33,7 @@ import com.enthes.domain.model.DiseaseActivity
 import com.enthes.presentation.dashboard.components.ActivityItemCard
 import com.enthes.presentation.dashboard.components.EmptyDashboardPlaceholder
 import com.enthes.presentation.dashboard.components.QuickCheckinDialog
+import com.enthes.presentation.theme.EnthesTheme
 import kotlinx.datetime.LocalDate
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -242,7 +243,7 @@ private fun DashboardError.toDisplayMessage(): String = when (this) {
 @Preview
 @Composable
 private fun DashboardContentEmptyPreview() {
-    MaterialTheme {
+    EnthesTheme {
         DashboardContent(
             state = DashboardUiState.Empty,
             onEvent = {},
@@ -253,7 +254,7 @@ private fun DashboardContentEmptyPreview() {
 @Preview
 @Composable
 private fun DashboardContentSuccessPreview() {
-    MaterialTheme {
+    EnthesTheme {
         DashboardContent(
             state = DashboardUiState.Success(
                 activities = listOf(

@@ -1,12 +1,12 @@
 package com.enthes
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import com.enthes.presentation.dashboard.DashboardScreen
+import com.enthes.presentation.theme.EnthesTheme
 
 @Composable
 fun App() {
-    MaterialTheme {
+    EnthesTheme {
         DashboardScreen()
     }
 }
