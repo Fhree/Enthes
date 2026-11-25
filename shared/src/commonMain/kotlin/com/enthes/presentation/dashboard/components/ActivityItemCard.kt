@@ -2,6 +2,7 @@ package com.enthes.presentation.dashboard.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.enthes.domain.model.DiseaseActivity
+import com.enthes.domain.model.PainZone
+import com.enthes.presentation.checkin.labelRes
 import enthes.shared.generated.resources.Res
 import enthes.shared.generated.resources.cd_delete_record
 import enthes.shared.generated.resources.ic_delete
@@ -77,6 +80,38 @@ fun ActivityItemCard(
                 MetricItem(
                     label = stringResource(Res.string.metric_stiffness),
                     value = stringResource(Res.string.metric_minutes_value, activity.morningStiffnessMinutes),
+                )
+            }
+
+            if (activity.painZones.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(12.dp))
+                PainZoneTagsRow(painZones = activity.painZones)
+            }
+        }
+    }
+}
+
+@Composable
+private fun PainZoneTagsRow(
+    painZones: Set<PainZone>,
+    modifier: Modifier = Modifier,
+) {
+    FlowRow(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        painZones.sortedBy { it.ordinal }.forEach { zone ->
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            ) {
+                Text(
+                    text = stringResource(zone.labelRes()),
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Medium,
                 )
             }
         }
