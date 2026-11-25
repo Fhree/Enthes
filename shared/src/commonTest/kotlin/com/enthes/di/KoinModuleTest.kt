@@ -4,12 +4,19 @@ import app.cash.sqldelight.db.SqlDriver
 import com.enthes.database.createInMemorySqlDriver
 import com.enthes.domain.model.DiseaseActivity
 import com.enthes.domain.repository.DiseaseActivityRepository
+import com.enthes.presentation.checkin.CheckinWizardViewModel
 import com.enthes.presentation.dashboard.DashboardViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
+import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.get
@@ -17,15 +24,19 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.time.Clock
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class KoinModuleTest : KoinTest {
 
     private lateinit var sqlDriver: SqlDriver
 
     @BeforeTest
     fun setUp() {
+        Dispatchers.setMain(StandardTestDispatcher())
         sqlDriver = createInMemorySqlDriver()
         startKoin {
             modules(
@@ -42,6 +53,7 @@ class KoinModuleTest : KoinTest {
     fun tearDown() {
         stopKoin()
         sqlDriver.close()
+        Dispatchers.resetMain()
     }
 
     @Test
@@ -71,5 +83,19 @@ class KoinModuleTest : KoinTest {
     fun testKoinResolvesDashboardViewModel() {
         val viewModel = get<DashboardViewModel>()
         assertNotNull(viewModel)
+    }
+
+    @Test
+    fun testKoinResolvesClockAndCheckinWizardViewModel() {
+        val clock = get<Clock>()
+        assertNotNull(clock)
+
+        val createViewModel = get<CheckinWizardViewModel>()
+        assertNotNull(createViewModel)
+        assertFalse(createViewModel.uiState.value.isEditMode)
+
+        val editViewModel = get<CheckinWizardViewModel> { parametersOf("di-test-1") }
+        assertNotNull(editViewModel)
+        assertTrue(editViewModel.uiState.value.isEditMode)
     }
 }
