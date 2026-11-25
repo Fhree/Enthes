@@ -40,6 +40,10 @@ import enthes.shared.generated.resources.action_delete
 import enthes.shared.generated.resources.dashboard_title
 import enthes.shared.generated.resources.delete_dialog_message
 import enthes.shared.generated.resources.delete_dialog_title
+import enthes.shared.generated.resources.error_delete_failed
+import enthes.shared.generated.resources.error_duplicate_date
+import enthes.shared.generated.resources.error_save_failed
+import enthes.shared.generated.resources.error_update_failed
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -240,11 +244,12 @@ private fun DashboardBody(
     }
 }
 
+@Composable
 private fun DashboardError.toDisplayMessage(): String = when (this) {
-    is DashboardError.DuplicateDate -> "A check-in for $date already exists."
-    DashboardError.SaveFailed -> "Failed to save check-in. Please try again."
-    DashboardError.UpdateFailed -> "Failed to update check-in. Please try again."
-    DashboardError.DeleteFailed -> "Failed to delete check-in. Please try again."
+    is DashboardError.DuplicateDate -> stringResource(Res.string.error_duplicate_date, date.toString())
+    DashboardError.SaveFailed -> stringResource(Res.string.error_save_failed)
+    DashboardError.UpdateFailed -> stringResource(Res.string.error_update_failed)
+    DashboardError.DeleteFailed -> stringResource(Res.string.error_delete_failed)
 }
 
 @Preview
