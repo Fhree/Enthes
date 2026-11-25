@@ -22,9 +22,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.enthes.domain.model.DiseaseActivity
 import enthes.shared.generated.resources.Res
+import enthes.shared.generated.resources.cd_delete_record
 import enthes.shared.generated.resources.ic_delete
+import enthes.shared.generated.resources.label_active_flare
+import enthes.shared.generated.resources.metric_eva_value
+import enthes.shared.generated.resources.metric_fatigue
+import enthes.shared.generated.resources.metric_minutes_value
+import enthes.shared.generated.resources.metric_pain
+import enthes.shared.generated.resources.metric_stiffness
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ActivityItemCard(
@@ -59,16 +67,16 @@ fun ActivityItemCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 MetricItem(
-                    label = "Pain",
-                    value = "${activity.globalPainLevel}/10",
+                    label = stringResource(Res.string.metric_pain),
+                    value = stringResource(Res.string.metric_eva_value, activity.globalPainLevel),
                 )
                 MetricItem(
-                    label = "Fatigue",
-                    value = "${activity.fatigueLevel}/10",
+                    label = stringResource(Res.string.metric_fatigue),
+                    value = stringResource(Res.string.metric_eva_value, activity.fatigueLevel),
                 )
                 MetricItem(
-                    label = "Stiffness",
-                    value = "${activity.morningStiffnessMinutes} min",
+                    label = stringResource(Res.string.metric_stiffness),
+                    value = stringResource(Res.string.metric_minutes_value, activity.morningStiffnessMinutes),
                 )
             }
         }
@@ -103,7 +111,7 @@ private fun ActivityCardHeader(
                     color = MaterialTheme.colorScheme.errorContainer,
                 ) {
                     Text(
-                        text = "Active Flare",
+                        text = stringResource(Res.string.label_active_flare),
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
@@ -114,7 +122,7 @@ private fun ActivityCardHeader(
             IconButton(onClick = onDeleteClick) {
                 Icon(
                     painter = painterResource(Res.drawable.ic_delete),
-                    contentDescription = "Delete record",
+                    contentDescription = stringResource(Res.string.cd_delete_record),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }

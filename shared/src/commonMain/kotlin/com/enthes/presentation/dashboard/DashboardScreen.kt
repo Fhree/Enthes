@@ -34,7 +34,14 @@ import com.enthes.presentation.dashboard.components.ActivityItemCard
 import com.enthes.presentation.dashboard.components.EmptyDashboardPlaceholder
 import com.enthes.presentation.dashboard.components.QuickCheckinDialog
 import com.enthes.presentation.theme.EnthesTheme
+import enthes.shared.generated.resources.Res
+import enthes.shared.generated.resources.action_cancel
+import enthes.shared.generated.resources.action_delete
+import enthes.shared.generated.resources.dashboard_title
+import enthes.shared.generated.resources.delete_dialog_message
+import enthes.shared.generated.resources.delete_dialog_title
 import kotlinx.datetime.LocalDate
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -87,7 +94,7 @@ fun DashboardContent(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text("Disease Activity") },
+                title = { Text(stringResource(Res.string.dashboard_title)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     titleContentColor = MaterialTheme.colorScheme.onSurface,
@@ -161,27 +168,27 @@ private fun DeleteActivityConfirmationDialog(
         onDismissRequest = onDismissRequest,
         title = {
             Text(
-                text = "Delete Check-in",
+                text = stringResource(Res.string.delete_dialog_title),
                 style = MaterialTheme.typography.titleLarge,
             )
         },
         text = {
             Text(
-                text = "Are you sure you want to delete the check-in for $entryDate?",
+                text = stringResource(Res.string.delete_dialog_message, entryDate.toString()),
                 style = MaterialTheme.typography.bodyMedium,
             )
         },
         confirmButton = {
             TextButton(onClick = onConfirmDelete) {
                 Text(
-                    text = "Delete",
+                    text = stringResource(Res.string.action_delete),
                     color = MaterialTheme.colorScheme.error,
                 )
             }
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text("Cancel")
+                Text(stringResource(Res.string.action_cancel))
             }
         },
     )
