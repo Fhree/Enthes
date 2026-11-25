@@ -50,6 +50,8 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun DashboardScreen(
+    onAddCheckin: () -> Unit,
+    onEditActivity: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DashboardViewModel = koinViewModel(),
 ) {
@@ -58,6 +60,8 @@ fun DashboardScreen(
     DashboardContent(
         state = uiState,
         onEvent = viewModel::onEvent,
+        onAddCheckin = onAddCheckin,
+        onEditActivity = onEditActivity,
         modifier = modifier,
     )
 }
@@ -73,6 +77,8 @@ private sealed interface DashboardDialogState {
 fun DashboardContent(
     state: DashboardUiState,
     onEvent: (DashboardEvent) -> Unit,
+    onAddCheckin: () -> Unit,
+    onEditActivity: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -107,7 +113,7 @@ fun DashboardContent(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { dialogState = DashboardDialogState.CreateCheckin },
+                onClick = onAddCheckin,
             ) {
                 Text(
                     text = "+",
@@ -119,7 +125,7 @@ fun DashboardContent(
     ) { paddingValues ->
         DashboardBody(
             state = state,
-            onEditActivity = { dialogState = DashboardDialogState.EditCheckin(it) },
+            onEditActivity = { onEditActivity(it.id) },
             onDeleteActivity = { dialogState = DashboardDialogState.ConfirmDelete(it) },
             modifier = Modifier
                 .fillMaxSize()
@@ -259,6 +265,8 @@ private fun DashboardContentEmptyPreview() {
         DashboardContent(
             state = DashboardUiState.Empty,
             onEvent = {},
+            onAddCheckin = {},
+            onEditActivity = {},
         )
     }
 }
@@ -291,6 +299,8 @@ private fun DashboardContentSuccessPreview() {
                 ),
             ),
             onEvent = {},
+            onAddCheckin = {},
+            onEditActivity = {},
         )
     }
 }
