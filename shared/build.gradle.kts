@@ -87,6 +87,8 @@ sqldelight {
     databases {
         create("EnthesDatabase") {
             packageName.set("com.enthes.database")
+            schemaOutputDirectory.set(file("src/commonMain/sqldelight/databases"))
+            verifyMigrations.set(true)
         }
     }
 }
