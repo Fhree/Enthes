@@ -2,7 +2,6 @@ package com.enthes.presentation.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.enthes.domain.error.DuplicateEntryDateException
 import com.enthes.domain.repository.DiseaseActivityRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -37,34 +36,6 @@ class DashboardViewModel(
 
     fun onEvent(event: DashboardEvent) {
         when (event) {
-            is DashboardEvent.OnSaveCheckin -> {
-                viewModelScope.launch {
-                    repository.insertActivity(event.activity)
-                        .onSuccess {
-                            _error.value = null
-                        }
-                        .onFailure { failure ->
-                            _error.value = mapError(
-                                error = failure,
-                                fallback = DashboardError.SaveFailed,
-                            )
-                        }
-                }
-            }
-            is DashboardEvent.OnUpdateCheckin -> {
-                viewModelScope.launch {
-                    repository.updateActivity(event.activity)
-                        .onSuccess {
-                            _error.value = null
-                        }
-                        .onFailure { failure ->
-                            _error.value = mapError(
-                                error = failure,
-                                fallback = DashboardError.UpdateFailed,
-                            )
-                        }
-                }
-            }
             is DashboardEvent.OnDeleteActivity -> {
                 viewModelScope.launch {
                     repository.deleteActivity(event.id)
@@ -80,13 +51,5 @@ class DashboardViewModel(
                 _error.value = null
             }
         }
-    }
-
-    private fun mapError(
-        error: Throwable,
-        fallback: DashboardError,
-    ): DashboardError = when (error) {
-        is DuplicateEntryDateException -> DashboardError.DuplicateDate(error.entryDate)
-        else -> fallback
     }
 }

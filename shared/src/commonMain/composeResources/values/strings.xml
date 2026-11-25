@@ -20,16 +20,6 @@
     <string name="delete_dialog_title">Delete Check-in</string>
     <string name="delete_dialog_message">Are you sure you want to delete the check-in for %1$s?</string>
 
-    <!-- Quick check-in dialog -->
-    <string name="checkin_dialog_title_new">New Daily Check-in</string>
-    <string name="checkin_dialog_title_edit">Edit Daily Check-in</string>
-    <string name="checkin_date_label">Date (YYYY-MM-DD)</string>
-    <string name="checkin_date_error">Use YYYY-MM-DD format</string>
-    <string name="checkin_pain_level">Pain Level</string>
-    <string name="checkin_fatigue_level">Fatigue Level</string>
-    <string name="checkin_stiffness_label">Morning Stiffness (minutes)</string>
-    <string name="checkin_slider_value">%1$s: %2$d/10</string>
-
     <!-- Common actions -->
     <string name="action_save">Save</string>
     <string name="action_update">Update</string>
@@ -41,4 +31,53 @@
     <string name="error_save_failed">Failed to save check-in. Please try again.</string>
     <string name="error_update_failed">Failed to update check-in. Please try again.</string>
     <string name="error_delete_failed">Failed to delete check-in. Please try again.</string>
+    <string name="error_load_failed">Could not load this check-in.</string>
+
+    <!-- Check-in wizard -->
+    <string name="cd_add_checkin">New daily check-in</string>
+    <string name="cd_navigate_back">Go back</string>
+    <string name="wizard_step_indicator">Step %1$d of %2$d</string>
+    <string name="wizard_step_pain_title">How is your pain today?</string>
+    <string name="wizard_step_fatigue_title">How is your fatigue today?</string>
+    <string name="wizard_step_stiffness_title">Morning stiffness duration</string>
+    <string name="wizard_step_flare_zones_title">Active flare &amp; pain zones</string>
+    <string name="wizard_step_summary_title_new">Review daily check-in</string>
+    <string name="wizard_step_summary_title_edit">Edit daily check-in</string>
+
+    <!-- EVA anchors -->
+    <string name="eva_pain_anchor_low">No pain</string>
+    <string name="eva_pain_anchor_mid">Moderate pain</string>
+    <string name="eva_pain_anchor_high">Unbearable pain</string>
+    <string name="eva_fatigue_anchor_low">No fatigue</string>
+    <string name="eva_fatigue_anchor_mid">Moderate fatigue</string>
+    <string name="eva_fatigue_anchor_high">Extreme exhaustion</string>
+
+    <!-- Stiffness ranges -->
+    <string name="stiffness_none">None (0 min)</string>
+    <string name="stiffness_under_30_min">&lt; 30 min</string>
+    <string name="stiffness_30_to_60_min">30–60 min</string>
+    <string name="stiffness_1_to_2_hours">1–2 h</string>
+    <string name="stiffness_over_2_hours">&gt; 2 h</string>
+
+    <!-- Flare & pain zones -->
+    <string name="wizard_flare_question">Are you experiencing an active flare?</string>
+    <string name="action_yes">Yes</string>
+    <string name="action_no">No</string>
+    <string name="wizard_pain_zones_section">Localized pain zones (optional)</string>
+    <string name="pain_zone_lumbar">Lower back (Lumbar)</string>
+    <string name="pain_zone_cervical">Neck (Cervical)</string>
+    <string name="pain_zone_knees">Knees</string>
+    <string name="pain_zone_hands">Hands</string>
+    <string name="pain_zone_feet_heels">Feet &amp; Heels</string>
+    <string name="pain_zone_shoulders_elbows">Shoulders &amp; Elbows</string>
+    <string name="action_review_summary">Review Summary</string>
+
+    <!-- Summary & date selection -->
+    <string name="wizard_date_section">Check-in date</string>
+    <string name="date_today">Today</string>
+    <string name="date_yesterday">Yesterday</string>
+    <string name="date_other">Other date</string>
+    <string name="action_confirm">Confirm</string>
+    <string name="summary_pain_zones_none">None</string>
+    <string name="summary_tap_to_edit">Tap to edit</string>
 </resources>

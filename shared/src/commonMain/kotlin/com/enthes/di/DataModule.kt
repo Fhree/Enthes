@@ -7,8 +7,10 @@ import com.enthes.database.EnthesDatabase
 import com.enthes.domain.repository.DiseaseActivityRepository
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import kotlin.time.Clock
 
 val dataModule = module {
+    single<Clock> { Clock.System }
     single {
         val driver = getOrNull<DatabaseDriverFactory>()?.createDriver() ?: get<SqlDriver>()
         EnthesDatabase(driver)
