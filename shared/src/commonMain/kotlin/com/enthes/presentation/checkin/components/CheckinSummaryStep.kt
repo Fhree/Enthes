@@ -110,64 +110,89 @@ fun CheckinSummaryStep(
                 onSelectDate = onSelectDate,
                 onOpenDatePicker = { showDatePicker = true },
             )
-
-            SummaryFieldCard(
-                label = stringResource(Res.string.metric_pain),
-                value = state.globalPainLevel?.let {
-                    stringResource(Res.string.metric_eva_value, it)
-                } ?: "-",
-                evaBadgeLevel = state.globalPainLevel,
-                onClick = { onEditStep(CheckinWizardStep.PAIN) },
-            )
-
-            SummaryFieldCard(
-                label = stringResource(Res.string.metric_fatigue),
-                value = state.fatigueLevel?.let {
-                    stringResource(Res.string.metric_eva_value, it)
-                } ?: "-",
-                evaBadgeLevel = state.fatigueLevel,
-                onClick = { onEditStep(CheckinWizardStep.FATIGUE) },
-            )
-
-            SummaryFieldCard(
-                label = stringResource(Res.string.metric_stiffness),
-                value = formatStiffnessValue(state.morningStiffnessMinutes),
-                onClick = { onEditStep(CheckinWizardStep.STIFFNESS) },
-            )
-
-            SummaryFieldCard(
-                label = stringResource(Res.string.label_active_flare),
-                value = buildFlareAndZonesSummary(
-                    hasActiveFlare = state.hasActiveFlare,
-                    painZones = state.painZones,
-                ),
-                onClick = { onEditStep(CheckinWizardStep.FLARE_AND_ZONES) },
+            SummaryFieldsSection(
+                state = state,
+                onEditStep = onEditStep,
             )
         }
 
-        Button(
-            onClick = onSave,
+        SummarySaveButton(
+            isEditMode = state.isEditMode,
+            isSaving = state.isSaving,
             enabled = state.canSave,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            if (state.isSaving) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    strokeWidth = 2.5.dp,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                )
-            } else {
-                Text(
-                    text = stringResource(
-                        if (state.isEditMode) Res.string.action_update else Res.string.action_save,
-                    ),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                )
-            }
+            onClick = onSave,
+        )
+    }
+}
+
+@Composable
+private fun SummaryFieldsSection(
+    state: CheckinWizardUiState,
+    onEditStep: (CheckinWizardStep) -> Unit,
+) {
+    SummaryFieldCard(
+        label = stringResource(Res.string.metric_pain),
+        value = state.globalPainLevel?.let {
+            stringResource(Res.string.metric_eva_value, it)
+        } ?: "-",
+        evaBadgeLevel = state.globalPainLevel,
+        onClick = { onEditStep(CheckinWizardStep.PAIN) },
+    )
+
+    SummaryFieldCard(
+        label = stringResource(Res.string.metric_fatigue),
+        value = state.fatigueLevel?.let {
+            stringResource(Res.string.metric_eva_value, it)
+        } ?: "-",
+        evaBadgeLevel = state.fatigueLevel,
+        onClick = { onEditStep(CheckinWizardStep.FATIGUE) },
+    )
+
+    SummaryFieldCard(
+        label = stringResource(Res.string.metric_stiffness),
+        value = formatStiffnessValue(state.morningStiffnessMinutes),
+        onClick = { onEditStep(CheckinWizardStep.STIFFNESS) },
+    )
+
+    SummaryFieldCard(
+        label = stringResource(Res.string.label_active_flare),
+        value = buildFlareAndZonesSummary(
+            hasActiveFlare = state.hasActiveFlare,
+            painZones = state.painZones,
+        ),
+        onClick = { onEditStep(CheckinWizardStep.FLARE_AND_ZONES) },
+    )
+}
+
+@Composable
+private fun SummarySaveButton(
+    isEditMode: Boolean,
+    isSaving: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp),
+        shape = RoundedCornerShape(16.dp),
+    ) {
+        if (isSaving) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(24.dp),
+                strokeWidth = 2.5.dp,
+                color = MaterialTheme.colorScheme.onPrimary,
+            )
+        } else {
+            Text(
+                text = stringResource(
+                    if (isEditMode) Res.string.action_update else Res.string.action_save,
+                ),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
         }
     }
 }

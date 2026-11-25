@@ -65,31 +65,10 @@ fun FlareAndZonesStep(
                 color = MaterialTheme.colorScheme.onBackground,
             )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                ErgonomicToggleCard(
-                    label = stringResource(Res.string.action_no),
-                    isSelected = !hasActiveFlare,
-                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    selectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    onClick = { onSetActiveFlare(false) },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(64.dp),
-                )
-                ErgonomicToggleCard(
-                    label = stringResource(Res.string.action_yes),
-                    isSelected = hasActiveFlare,
-                    selectedContainerColor = MaterialTheme.colorScheme.errorContainer,
-                    selectedContentColor = MaterialTheme.colorScheme.onErrorContainer,
-                    onClick = { onSetActiveFlare(true) },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(64.dp),
-                )
-            }
+            ActiveFlareSelectorRow(
+                hasActiveFlare = hasActiveFlare,
+                onSetActiveFlare = onSetActiveFlare,
+            )
 
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -118,6 +97,39 @@ fun FlareAndZonesStep(
                 fontWeight = FontWeight.SemiBold,
             )
         }
+    }
+}
+
+@Composable
+private fun ActiveFlareSelectorRow(
+    hasActiveFlare: Boolean,
+    onSetActiveFlare: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        ErgonomicToggleCard(
+            label = stringResource(Res.string.action_no),
+            isSelected = !hasActiveFlare,
+            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            selectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            onClick = { onSetActiveFlare(false) },
+            modifier = Modifier
+                .weight(1f)
+                .height(64.dp),
+        )
+        ErgonomicToggleCard(
+            label = stringResource(Res.string.action_yes),
+            isSelected = hasActiveFlare,
+            selectedContainerColor = MaterialTheme.colorScheme.errorContainer,
+            selectedContentColor = MaterialTheme.colorScheme.onErrorContainer,
+            onClick = { onSetActiveFlare(true) },
+            modifier = Modifier
+                .weight(1f)
+                .height(64.dp),
+        )
     }
 }
 

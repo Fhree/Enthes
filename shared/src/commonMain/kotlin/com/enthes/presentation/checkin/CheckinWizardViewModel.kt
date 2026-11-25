@@ -236,21 +236,25 @@ class CheckinWizardViewModel(
     }
 
     private fun buildActivityToPersist(state: CheckinWizardUiState): DiseaseActivity? {
-        val pain = state.globalPainLevel ?: return null
-        val fatigue = state.fatigueLevel ?: return null
-        val stiffness = state.morningStiffnessMinutes ?: return null
+        val pain = state.globalPainLevel
+        val fatigue = state.fatigueLevel
+        val stiffness = state.morningStiffnessMinutes
         val existing = existingActivity
 
-        return DiseaseActivity(
-            id = existing?.id ?: idGenerator(),
-            entryDate = state.entryDate,
-            morningStiffnessMinutes = stiffness,
-            globalPainLevel = pain,
-            fatigueLevel = fatigue,
-            hasActiveFlare = state.hasActiveFlare,
-            createdAt = existing?.createdAt ?: clock.now().toEpochMilliseconds(),
-            painZones = state.painZones,
-        )
+        return if (pain != null && fatigue != null && stiffness != null) {
+            DiseaseActivity(
+                id = existing?.id ?: idGenerator(),
+                entryDate = state.entryDate,
+                morningStiffnessMinutes = stiffness,
+                globalPainLevel = pain,
+                fatigueLevel = fatigue,
+                hasActiveFlare = state.hasActiveFlare,
+                createdAt = existing?.createdAt ?: clock.now().toEpochMilliseconds(),
+                painZones = state.painZones,
+            )
+        } else {
+            null
+        }
     }
 }
 
