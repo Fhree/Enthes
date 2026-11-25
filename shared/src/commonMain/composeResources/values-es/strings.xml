@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dashboard -->
+    <string name="dashboard_title">Actividad de la enfermedad</string>
+
+    <!-- Empty state -->
+    <string name="empty_dashboard_title">Aún no hay registros</string>
+    <string name="empty_dashboard_subtitle">Empieza a registrar la actividad de tu enfermedad añadiendo tu registro diario.</string>
+
+    <!-- Activity card -->
+    <string name="metric_pain">Dolor</string>
+    <string name="metric_fatigue">Fatiga</string>
+    <string name="metric_stiffness">Rigidez</string>
+    <string name="metric_eva_value">%1$d/10</string>
+    <string name="metric_minutes_value">%1$d min</string>
+    <string name="label_active_flare">Brote activo</string>
+    <string name="cd_delete_record">Eliminar registro</string>
+
+    <!-- Delete confirmation dialog -->
+    <string name="delete_dialog_title">Eliminar registro</string>
+    <string name="delete_dialog_message">¿Seguro que quieres eliminar el registro del %1$s?</string>
+
+    <!-- Quick check-in dialog -->
+    <string name="checkin_dialog_title_new">Nuevo registro diario</string>
+    <string name="checkin_dialog_title_edit">Editar registro diario</string>
+    <string name="checkin_date_label">Fecha (AAAA-MM-DD)</string>
+    <string name="checkin_date_error">Usa el formato AAAA-MM-DD</string>
+    <string name="checkin_pain_level">Nivel de dolor</string>
+    <string name="checkin_fatigue_level">Nivel de fatiga</string>
+    <string name="checkin_stiffness_label">Rigidez matutina (minutos)</string>
+    <string name="checkin_slider_value">%1$s: %2$d/10</string>
+
+    <!-- Common actions -->
+    <string name="action_save">Guardar</string>
+    <string name="action_update">Actualizar</string>
+    <string name="action_delete">Eliminar</string>
+    <string name="action_cancel">Cancelar</string>
+
+    <!-- Dashboard errors -->
+    <string name="error_duplicate_date">Ya existe un registro para el %1$s.</string>
+    <string name="error_save_failed">No se pudo guardar el registro. Inténtalo de nuevo.</string>
+    <string name="error_update_failed">No se pudo actualizar el registro. Inténtalo de nuevo.</string>
+    <string name="error_delete_failed">No se pudo eliminar el registro. Inténtalo de nuevo.</string>
+</resources>
