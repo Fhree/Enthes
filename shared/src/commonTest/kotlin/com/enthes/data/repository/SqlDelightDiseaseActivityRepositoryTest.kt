@@ -7,6 +7,7 @@ import com.enthes.domain.error.DuplicateEntryDateException
 import com.enthes.domain.model.DiseaseActivity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.LocalDate
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -36,7 +37,7 @@ class SqlDelightDiseaseActivityRepositoryTest {
     fun insertAndGetAllActivitiesSucceeds() = runBlocking {
         val activity = DiseaseActivity(
             id = "1",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 30,
             globalPainLevel = 5,
             fatigueLevel = 4,
@@ -56,7 +57,7 @@ class SqlDelightDiseaseActivityRepositoryTest {
     fun insertDuplicateEntryDateReturnsFailureResult() = runBlocking {
         val activity1 = DiseaseActivity(
             id = "1",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 30,
             globalPainLevel = 5,
             fatigueLevel = 4,
@@ -66,7 +67,7 @@ class SqlDelightDiseaseActivityRepositoryTest {
 
         val activity2 = DiseaseActivity(
             id = "2",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 15,
             globalPainLevel = 2,
             fatigueLevel = 1,
@@ -80,14 +81,14 @@ class SqlDelightDiseaseActivityRepositoryTest {
         val result2 = repository.insertActivity(activity2)
         assertTrue(result2.isFailure)
         val exception = assertIs<DuplicateEntryDateException>(result2.exceptionOrNull())
-        assertEquals("2026-11-12", exception.entryDate)
+        assertEquals(LocalDate(2026, 11, 12), exception.entryDate)
     }
 
     @Test
     fun deleteActivityRemovesOnlyTargetRecordAndUpdatesFlow() = runBlocking {
         val activity1 = DiseaseActivity(
             id = "1",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 30,
             globalPainLevel = 5,
             fatigueLevel = 4,
@@ -96,7 +97,7 @@ class SqlDelightDiseaseActivityRepositoryTest {
         )
         val activity2 = DiseaseActivity(
             id = "2",
-            entryDate = "2026-11-13",
+            entryDate = LocalDate(2026, 11, 13),
             morningStiffnessMinutes = 15,
             globalPainLevel = 2,
             fatigueLevel = 1,
@@ -118,7 +119,7 @@ class SqlDelightDiseaseActivityRepositoryTest {
     fun updateActivityPersistsModifiedFieldsAndUpdatesFlow() = runBlocking {
         val activity1 = DiseaseActivity(
             id = "1",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 30,
             globalPainLevel = 5,
             fatigueLevel = 4,
@@ -127,7 +128,7 @@ class SqlDelightDiseaseActivityRepositoryTest {
         )
         val activity2 = DiseaseActivity(
             id = "2",
-            entryDate = "2026-11-13",
+            entryDate = LocalDate(2026, 11, 13),
             morningStiffnessMinutes = 15,
             globalPainLevel = 2,
             fatigueLevel = 1,
@@ -139,7 +140,7 @@ class SqlDelightDiseaseActivityRepositoryTest {
         assertTrue(repository.insertActivity(activity2).isSuccess)
 
         val updatedActivity1 = activity1.copy(
-            entryDate = "2026-11-15",
+            entryDate = LocalDate(2026, 11, 15),
             morningStiffnessMinutes = 60,
             globalPainLevel = 8,
             fatigueLevel = 7,
@@ -157,7 +158,7 @@ class SqlDelightDiseaseActivityRepositoryTest {
     fun updateActivityWithDuplicateEntryDateReturnsFailureResult() = runBlocking {
         val activity1 = DiseaseActivity(
             id = "1",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 30,
             globalPainLevel = 5,
             fatigueLevel = 4,
@@ -166,7 +167,7 @@ class SqlDelightDiseaseActivityRepositoryTest {
         )
         val activity2 = DiseaseActivity(
             id = "2",
-            entryDate = "2026-11-13",
+            entryDate = LocalDate(2026, 11, 13),
             morningStiffnessMinutes = 15,
             globalPainLevel = 2,
             fatigueLevel = 1,
@@ -177,12 +178,12 @@ class SqlDelightDiseaseActivityRepositoryTest {
         assertTrue(repository.insertActivity(activity1).isSuccess)
         assertTrue(repository.insertActivity(activity2).isSuccess)
 
-        val conflictingUpdate = activity2.copy(entryDate = "2026-11-12")
+        val conflictingUpdate = activity2.copy(entryDate = LocalDate(2026, 11, 12))
         val updateResult = repository.updateActivity(conflictingUpdate)
 
         assertTrue(updateResult.isFailure)
         val exception = assertIs<DuplicateEntryDateException>(updateResult.exceptionOrNull())
-        assertEquals("2026-11-12", exception.entryDate)
+        assertEquals(LocalDate(2026, 11, 12), exception.entryDate)
 
         val activities = repository.getAllActivities().first()
         assertEquals(listOf(activity2, activity1), activities)

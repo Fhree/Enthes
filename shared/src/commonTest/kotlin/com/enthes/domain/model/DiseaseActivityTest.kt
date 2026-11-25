@@ -1,5 +1,6 @@
 package com.enthes.domain.model
 
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -11,7 +12,7 @@ class DiseaseActivityTest {
     fun validDiseaseActivityCreationSucceeds() {
         val activity = DiseaseActivity(
             id = "1",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 30,
             globalPainLevel = 5,
             fatigueLevel = 4,
@@ -20,7 +21,7 @@ class DiseaseActivityTest {
         )
 
         assertEquals("1", activity.id)
-        assertEquals("2026-11-12", activity.entryDate)
+        assertEquals(LocalDate(2026, 11, 12), activity.entryDate)
         assertEquals(30, activity.morningStiffnessMinutes)
         assertEquals(5, activity.globalPainLevel)
         assertEquals(4, activity.fatigueLevel)
@@ -32,7 +33,7 @@ class DiseaseActivityTest {
     fun boundaryValuesForPainAndFatigueAreAccepted() {
         val activityMin = DiseaseActivity(
             id = "min",
-            entryDate = "2026-11-10",
+            entryDate = LocalDate(2026, 11, 10),
             morningStiffnessMinutes = 0,
             globalPainLevel = 0,
             fatigueLevel = 0,
@@ -45,7 +46,7 @@ class DiseaseActivityTest {
 
         val activityMax = DiseaseActivity(
             id = "max",
-            entryDate = "2026-11-11",
+            entryDate = LocalDate(2026, 11, 11),
             morningStiffnessMinutes = 300,
             globalPainLevel = 10,
             fatigueLevel = 10,
@@ -61,7 +62,7 @@ class DiseaseActivityTest {
         assertFailsWith<IllegalArgumentException> {
             DiseaseActivity(
                 id = "1",
-                entryDate = "2026-11-12",
+                entryDate = LocalDate(2026, 11, 12),
                 morningStiffnessMinutes = 0,
                 globalPainLevel = -1,
                 fatigueLevel = 5,
@@ -76,7 +77,7 @@ class DiseaseActivityTest {
         assertFailsWith<IllegalArgumentException> {
             DiseaseActivity(
                 id = "1",
-                entryDate = "2026-11-12",
+                entryDate = LocalDate(2026, 11, 12),
                 morningStiffnessMinutes = 0,
                 globalPainLevel = 11,
                 fatigueLevel = 5,
@@ -91,7 +92,7 @@ class DiseaseActivityTest {
         assertFailsWith<IllegalArgumentException> {
             DiseaseActivity(
                 id = "1",
-                entryDate = "2026-11-12",
+                entryDate = LocalDate(2026, 11, 12),
                 morningStiffnessMinutes = 0,
                 globalPainLevel = 5,
                 fatigueLevel = -1,
@@ -106,7 +107,7 @@ class DiseaseActivityTest {
         assertFailsWith<IllegalArgumentException> {
             DiseaseActivity(
                 id = "1",
-                entryDate = "2026-11-12",
+                entryDate = LocalDate(2026, 11, 12),
                 morningStiffnessMinutes = 0,
                 globalPainLevel = 5,
                 fatigueLevel = 11,
@@ -121,7 +122,7 @@ class DiseaseActivityTest {
         assertFailsWith<IllegalArgumentException> {
             DiseaseActivity(
                 id = "1",
-                entryDate = "2026-11-12",
+                entryDate = LocalDate(2026, 11, 12),
                 morningStiffnessMinutes = -1,
                 globalPainLevel = 5,
                 fatigueLevel = 5,

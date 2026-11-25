@@ -2,6 +2,7 @@ package com.enthes.data.mapper
 
 import com.enthes.database.Historic_disease_activity
 import com.enthes.domain.model.DiseaseActivity
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -24,7 +25,7 @@ class DiseaseActivityMapperTest {
         val domain = entity.toDomain()
 
         assertEquals("test-1", domain.id)
-        assertEquals("2026-11-12", domain.entryDate)
+        assertEquals(LocalDate(2026, 11, 12), domain.entryDate)
         assertEquals(45, domain.morningStiffnessMinutes)
         assertEquals(7, domain.globalPainLevel)
         assertEquals(6, domain.fatigueLevel)
@@ -71,7 +72,7 @@ class DiseaseActivityMapperTest {
     fun toEntityMapsTrueFlareToOneLong() {
         val domain = DiseaseActivity(
             id = "test-4",
-            entryDate = "2026-11-15",
+            entryDate = LocalDate(2026, 11, 15),
             morningStiffnessMinutes = 60,
             globalPainLevel = 8,
             fatigueLevel = 9,
@@ -94,7 +95,7 @@ class DiseaseActivityMapperTest {
     fun toEntityMapsFalseFlareToZeroLong() {
         val domain = DiseaseActivity(
             id = "test-5",
-            entryDate = "2026-11-16",
+            entryDate = LocalDate(2026, 11, 16),
             morningStiffnessMinutes = 10,
             globalPainLevel = 2,
             fatigueLevel = 1,

@@ -15,6 +15,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.LocalDate
 import kotlin.coroutines.cancellation.CancellationException
 
 class SqlDelightDiseaseActivityRepository(
@@ -55,7 +56,7 @@ class SqlDelightDiseaseActivityRepository(
     }
 
     private suspend fun executeActivityWrite(
-        entryDate: String,
+        entryDate: LocalDate,
         block: () -> Unit,
     ): Result<Unit> = withContext(Dispatchers.IO) {
         val result = runCatching(block)

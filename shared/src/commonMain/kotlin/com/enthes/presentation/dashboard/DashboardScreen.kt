@@ -33,6 +33,7 @@ import com.enthes.domain.model.DiseaseActivity
 import com.enthes.presentation.dashboard.components.ActivityItemCard
 import com.enthes.presentation.dashboard.components.EmptyDashboardPlaceholder
 import com.enthes.presentation.dashboard.components.QuickCheckinDialog
+import kotlinx.datetime.LocalDate
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -150,7 +151,7 @@ private fun DashboardDialogs(
 
 @Composable
 private fun DeleteActivityConfirmationDialog(
-    entryDate: String,
+    entryDate: LocalDate,
     onDismissRequest: () -> Unit,
     onConfirmDelete: () -> Unit,
 ) {
@@ -250,7 +251,7 @@ private fun DashboardContentSuccessPreview() {
                 activities = listOf(
                     DiseaseActivity(
                         id = "1",
-                        entryDate = "2026-11-18",
+                        entryDate = LocalDate(2026, 11, 18),
                         morningStiffnessMinutes = 45,
                         globalPainLevel = 6,
                         fatigueLevel = 7,
@@ -259,7 +260,7 @@ private fun DashboardContentSuccessPreview() {
                     ),
                     DiseaseActivity(
                         id = "2",
-                        entryDate = "2026-11-17",
+                        entryDate = LocalDate(2026, 11, 17),
                         morningStiffnessMinutes = 15,
                         globalPainLevel = 2,
                         fatigueLevel = 3,

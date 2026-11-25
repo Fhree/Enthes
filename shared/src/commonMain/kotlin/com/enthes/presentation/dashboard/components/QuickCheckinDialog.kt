@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.enthes.domain.model.DiseaseActivity
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import kotlin.math.roundToInt
@@ -45,7 +46,7 @@ fun QuickCheckinDialog(
     initialActivity: DiseaseActivity? = null,
 ) {
     val isEditMode = initialActivity != null
-    val todayDate = remember { Clock.System.todayIn(TimeZone.currentSystemDefault()).toString() }
+    val todayDate = remember { Clock.System.todayIn(TimeZone.currentSystemDefault()) }
     val formState = remember(initialActivity) {
         QuickCheckinFormState(initialActivity = initialActivity, fallbackDate = todayDate)
     }
@@ -61,7 +62,10 @@ fun QuickCheckinDialog(
         },
         text = { QuickCheckinForm(formState = formState) },
         confirmButton = {
-            TextButton(onClick = { onSaveCheckin(formState.toDiseaseActivity()) }) {
+            TextButton(
+                onClick = { formState.toDiseaseActivity()?.let(onSaveCheckin) },
+                enabled = !formState.isDateError,
+            ) {
                 Text(if (isEditMode) "Update" else "Save")
             }
         },
@@ -75,15 +79,25 @@ fun QuickCheckinDialog(
 
 private class QuickCheckinFormState(
     private val initialActivity: DiseaseActivity?,
-    private val fallbackDate: String,
+    private val fallbackDate: LocalDate,
 ) {
-    var entryDate by mutableStateOf(initialActivity?.entryDate ?: fallbackDate)
+    var entryDateText by mutableStateOf((initialActivity?.entryDate ?: fallbackDate).toString())
     var painLevel by mutableFloatStateOf(initialActivity?.globalPainLevel?.toFloat() ?: DEFAULT_LEVEL)
     var fatigueLevel by mutableFloatStateOf(initialActivity?.fatigueLevel?.toFloat() ?: DEFAULT_LEVEL)
     var stiffnessMinutes by mutableStateOf(
         initialActivity?.morningStiffnessMinutes?.toString() ?: DEFAULT_STIFFNESS_MINUTES,
     )
     var hasActiveFlare by mutableStateOf(value = initialActivity?.hasActiveFlare ?: false)
+
+    val parsedEntryDate: LocalDate?
+        get() = if (entryDateText.isBlank()) {
+            initialActivity?.entryDate ?: fallbackDate
+        } else {
+            runCatching { LocalDate.parse(entryDateText.trim()) }.getOrNull()
+        }
+
+    val isDateError: Boolean
+        get() = parsedEntryDate == null
 
     fun updateStiffnessMinutes(input: String) {
         if (input.all { it.isDigit() }) {
@@ -92,15 +106,17 @@ private class QuickCheckinFormState(
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    fun toDiseaseActivity(): DiseaseActivity = DiseaseActivity(
-        id = initialActivity?.id ?: Uuid.random().toString(),
-        entryDate = entryDate.ifBlank { initialActivity?.entryDate ?: fallbackDate },
-        morningStiffnessMinutes = stiffnessMinutes.toIntOrNull() ?: 0,
-        globalPainLevel = painLevel.roundToInt().coerceIn(MIN_LEVEL, MAX_LEVEL),
-        fatigueLevel = fatigueLevel.roundToInt().coerceIn(MIN_LEVEL, MAX_LEVEL),
-        hasActiveFlare = hasActiveFlare,
-        createdAt = initialActivity?.createdAt ?: Clock.System.now().toEpochMilliseconds(),
-    )
+    fun toDiseaseActivity(): DiseaseActivity? = parsedEntryDate?.let { validDate ->
+        DiseaseActivity(
+            id = initialActivity?.id ?: Uuid.random().toString(),
+            entryDate = validDate,
+            morningStiffnessMinutes = stiffnessMinutes.toIntOrNull() ?: 0,
+            globalPainLevel = painLevel.roundToInt().coerceIn(MIN_LEVEL, MAX_LEVEL),
+            fatigueLevel = fatigueLevel.roundToInt().coerceIn(MIN_LEVEL, MAX_LEVEL),
+            hasActiveFlare = hasActiveFlare,
+            createdAt = initialActivity?.createdAt ?: Clock.System.now().toEpochMilliseconds(),
+        )
+    }
 }
 
 @Composable
@@ -115,9 +131,15 @@ private fun QuickCheckinForm(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         OutlinedTextField(
-            value = formState.entryDate,
-            onValueChange = { formState.entryDate = it },
+            value = formState.entryDateText,
+            onValueChange = { formState.entryDateText = it },
             label = { Text("Date (YYYY-MM-DD)") },
+            isError = formState.isDateError,
+            supportingText = if (formState.isDateError) {
+                { Text("Use YYYY-MM-DD format") }
+            } else {
+                null
+            },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )

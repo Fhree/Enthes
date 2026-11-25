@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.enthes.domain.model.DiseaseActivity
 import enthes.shared.generated.resources.Res
 import enthes.shared.generated.resources.ic_delete
+import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
@@ -76,7 +77,7 @@ fun ActivityItemCard(
 
 @Composable
 private fun ActivityCardHeader(
-    entryDate: String,
+    entryDate: LocalDate,
     hasActiveFlare: Boolean,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -87,7 +88,7 @@ private fun ActivityCardHeader(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = entryDate,
+            text = entryDate.toString(),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurfaceVariant,

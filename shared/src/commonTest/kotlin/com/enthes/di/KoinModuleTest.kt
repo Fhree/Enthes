@@ -7,6 +7,7 @@ import com.enthes.domain.repository.DiseaseActivityRepository
 import com.enthes.presentation.dashboard.DashboardViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.LocalDate
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
@@ -50,7 +51,7 @@ class KoinModuleTest : KoinTest {
 
         val activity = DiseaseActivity(
             id = "di-test-1",
-            entryDate = "2026-11-17",
+            entryDate = LocalDate(2026, 11, 17),
             morningStiffnessMinutes = 20,
             globalPainLevel = 4,
             fatigueLevel = 3,
