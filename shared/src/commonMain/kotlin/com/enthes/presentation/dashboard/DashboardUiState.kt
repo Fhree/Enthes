@@ -7,6 +7,6 @@ sealed interface DashboardUiState {
     data object Empty : DashboardUiState
     data class Success(
         val activities: List<DiseaseActivity>,
-        val errorMessage: String? = null,
+        val error: DashboardError? = null,
     ) : DashboardUiState
 }

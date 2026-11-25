@@ -5,7 +5,6 @@ import app.cash.sqldelight.coroutines.mapToList
 import com.enthes.data.mapper.insertDiseaseActivity
 import com.enthes.data.mapper.toDomain
 import com.enthes.data.mapper.updateActivity
-import com.enthes.database.DatabaseDriverFactory
 import com.enthes.database.EnthesDatabase
 import com.enthes.domain.error.DuplicateEntryDateException
 import com.enthes.domain.model.DiseaseActivity
@@ -15,13 +14,12 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.LocalDate
 import kotlin.coroutines.cancellation.CancellationException
 
 class SqlDelightDiseaseActivityRepository(
     database: EnthesDatabase,
 ) : DiseaseActivityRepository {
-
-    constructor(driverFactory: DatabaseDriverFactory) : this(EnthesDatabase(driverFactory.createDriver()))
 
     private val queries = database.enthesQueries
 
@@ -50,12 +48,13 @@ class SqlDelightDiseaseActivityRepository(
         val failure = result.exceptionOrNull()
         if (failure is CancellationException) {
             throw failure
+        } else {
+            result
         }
-        result
     }
 
     private suspend fun executeActivityWrite(
-        entryDate: String,
+        entryDate: LocalDate,
         block: () -> Unit,
     ): Result<Unit> = withContext(Dispatchers.IO) {
         val result = runCatching(block)

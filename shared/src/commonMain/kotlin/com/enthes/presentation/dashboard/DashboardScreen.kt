@@ -33,6 +33,7 @@ import com.enthes.domain.model.DiseaseActivity
 import com.enthes.presentation.dashboard.components.ActivityItemCard
 import com.enthes.presentation.dashboard.components.EmptyDashboardPlaceholder
 import com.enthes.presentation.dashboard.components.QuickCheckinDialog
+import kotlinx.datetime.LocalDate
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -65,9 +66,10 @@ fun DashboardContent(
     val snackbarHostState = remember { SnackbarHostState() }
     var dialogState by remember { mutableStateOf<DashboardDialogState>(DashboardDialogState.None) }
 
-    if ((state is DashboardUiState.Success) && (state.errorMessage != null)) {
-        LaunchedEffect(state.errorMessage) {
-            snackbarHostState.showSnackbar(message = state.errorMessage)
+    if ((state is DashboardUiState.Success) && (state.error != null)) {
+        val errorMessage = state.error.toDisplayMessage()
+        LaunchedEffect(state.error) {
+            snackbarHostState.showSnackbar(message = errorMessage)
             onEvent(DashboardEvent.OnDismissError)
         }
     }
@@ -75,11 +77,10 @@ fun DashboardContent(
     DashboardDialogs(
         dialogState = dialogState,
         onDismiss = { dialogState = DashboardDialogState.None },
-        onEvent = { event ->
-            dialogState = DashboardDialogState.None
-            onEvent(event)
-        },
-    )
+    ) { event ->
+        dialogState = DashboardDialogState.None
+        onEvent(event)
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -142,15 +143,16 @@ private fun DashboardDialogs(
             DeleteActivityConfirmationDialog(
                 entryDate = dialogState.activity.entryDate,
                 onDismissRequest = onDismiss,
-                onConfirmDelete = { onEvent(DashboardEvent.OnDeleteActivity(dialogState.activity.id)) },
-            )
+            ) {
+                onEvent(DashboardEvent.OnDeleteActivity(dialogState.activity.id))
+            }
         }
     }
 }
 
 @Composable
 private fun DeleteActivityConfirmationDialog(
-    entryDate: String,
+    entryDate: LocalDate,
     onDismissRequest: () -> Unit,
     onConfirmDelete: () -> Unit,
 ) {
@@ -230,6 +232,13 @@ private fun DashboardBody(
     }
 }
 
+private fun DashboardError.toDisplayMessage(): String = when (this) {
+    is DashboardError.DuplicateDate -> "A check-in for $date already exists."
+    DashboardError.SaveFailed -> "Failed to save check-in. Please try again."
+    DashboardError.UpdateFailed -> "Failed to update check-in. Please try again."
+    DashboardError.DeleteFailed -> "Failed to delete check-in. Please try again."
+}
+
 @Preview
 @Composable
 private fun DashboardContentEmptyPreview() {
@@ -250,7 +259,7 @@ private fun DashboardContentSuccessPreview() {
                 activities = listOf(
                     DiseaseActivity(
                         id = "1",
-                        entryDate = "2026-11-18",
+                        entryDate = LocalDate(2026, 11, 18),
                         morningStiffnessMinutes = 45,
                         globalPainLevel = 6,
                         fatigueLevel = 7,
@@ -259,7 +268,7 @@ private fun DashboardContentSuccessPreview() {
                     ),
                     DiseaseActivity(
                         id = "2",
-                        entryDate = "2026-11-17",
+                        entryDate = LocalDate(2026, 11, 17),
                         morningStiffnessMinutes = 15,
                         globalPainLevel = 2,
                         fatigueLevel = 3,

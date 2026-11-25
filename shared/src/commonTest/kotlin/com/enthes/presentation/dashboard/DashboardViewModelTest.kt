@@ -11,6 +11,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.LocalDate
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -57,7 +58,7 @@ class DashboardViewModelTest {
     fun stateTransitionsFromLoadingToSuccessWhenActivitiesExist() = runTest(testDispatcher) {
         val activity = DiseaseActivity(
             id = "1",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 30,
             globalPainLevel = 5,
             fatigueLevel = 4,
@@ -79,12 +80,12 @@ class DashboardViewModelTest {
         assertEquals(
             listOf(
                 DashboardUiState.Loading,
-                DashboardUiState.Success(activities = listOf(activity), errorMessage = null),
+                DashboardUiState.Success(activities = listOf(activity), error = null),
             ),
             states,
         )
         assertEquals(
-            DashboardUiState.Success(activities = listOf(activity), errorMessage = null),
+            DashboardUiState.Success(activities = listOf(activity), error = null),
             vm.uiState.value,
         )
     }
@@ -93,7 +94,7 @@ class DashboardViewModelTest {
     fun onSaveCheckinSurfacesErrorOnDuplicateDate() = runTest(testDispatcher) {
         val activity1 = DiseaseActivity(
             id = "1",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 30,
             globalPainLevel = 5,
             fatigueLevel = 4,
@@ -102,7 +103,7 @@ class DashboardViewModelTest {
         )
         val activity2 = DiseaseActivity(
             id = "2",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 15,
             globalPainLevel = 2,
             fatigueLevel = 1,
@@ -119,7 +120,7 @@ class DashboardViewModelTest {
         advanceUntilIdle()
 
         assertEquals(
-            DashboardUiState.Success(activities = listOf(activity1), errorMessage = null),
+            DashboardUiState.Success(activities = listOf(activity1), error = null),
             vm.uiState.value,
         )
 
@@ -129,14 +130,14 @@ class DashboardViewModelTest {
         val currentState = vm.uiState.value
         assertTrue(currentState is DashboardUiState.Success)
         assertEquals(listOf(activity1), currentState.activities)
-        assertEquals("A check-in for 2026-11-12 already exists.", currentState.errorMessage)
+        assertEquals(DashboardError.DuplicateDate(LocalDate(2026, 11, 12)), currentState.error)
     }
 
     @Test
-    fun onDismissErrorClearsErrorMessage() = runTest(testDispatcher) {
+    fun onDismissErrorClearsError() = runTest(testDispatcher) {
         val activity1 = DiseaseActivity(
             id = "1",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 30,
             globalPainLevel = 5,
             fatigueLevel = 4,
@@ -145,7 +146,7 @@ class DashboardViewModelTest {
         )
         val activity2 = DiseaseActivity(
             id = "2",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 15,
             globalPainLevel = 2,
             fatigueLevel = 1,
@@ -165,20 +166,20 @@ class DashboardViewModelTest {
         advanceUntilIdle()
 
         val errorState = vm.uiState.value as DashboardUiState.Success
-        assertNotNull(errorState.errorMessage)
+        assertNotNull(errorState.error)
 
         vm.onEvent(DashboardEvent.OnDismissError)
         advanceUntilIdle()
 
         val dismissedState = vm.uiState.value as DashboardUiState.Success
-        assertNull(dismissedState.errorMessage)
+        assertNull(dismissedState.error)
     }
 
     @Test
     fun onSaveCheckinWithNewDateInsertsActivitySuccessfully() = runTest(testDispatcher) {
         val activity1 = DiseaseActivity(
             id = "1",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 30,
             globalPainLevel = 5,
             fatigueLevel = 4,
@@ -196,7 +197,7 @@ class DashboardViewModelTest {
         advanceUntilIdle()
 
         assertEquals(
-            DashboardUiState.Success(activities = listOf(activity1), errorMessage = null),
+            DashboardUiState.Success(activities = listOf(activity1), error = null),
             viewModel.uiState.value,
         )
     }
@@ -205,7 +206,7 @@ class DashboardViewModelTest {
     fun onSaveCheckinDoesNotLeakRawErrorMessagesOnUnexpectedFailure() = runTest(testDispatcher) {
         val activity = DiseaseActivity(
             id = "1",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 20,
             globalPainLevel = 4,
             fatigueLevel = 3,
@@ -225,14 +226,14 @@ class DashboardViewModelTest {
         advanceUntilIdle()
 
         val currentState = viewModel.uiState.value as DashboardUiState.Success
-        assertEquals("Failed to save check-in. Please try again.", currentState.errorMessage)
+        assertEquals(DashboardError.SaveFailed, currentState.error)
     }
 
     @Test
     fun onDeleteActivityRemovesRecordAndTransitionsToEmptyWhenLastDeleted() = runTest(testDispatcher) {
         val activity1 = DiseaseActivity(
             id = "1",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 30,
             globalPainLevel = 5,
             fatigueLevel = 4,
@@ -241,7 +242,7 @@ class DashboardViewModelTest {
         )
         val activity2 = DiseaseActivity(
             id = "2",
-            entryDate = "2026-11-13",
+            entryDate = LocalDate(2026, 11, 13),
             morningStiffnessMinutes = 15,
             globalPainLevel = 2,
             fatigueLevel = 1,
@@ -261,7 +262,7 @@ class DashboardViewModelTest {
         advanceUntilIdle()
 
         assertEquals(
-            DashboardUiState.Success(activities = listOf(activity2), errorMessage = null),
+            DashboardUiState.Success(activities = listOf(activity2), error = null),
             vm.uiState.value,
         )
 
@@ -275,7 +276,7 @@ class DashboardViewModelTest {
     fun onDeleteActivitySurfacesCleanErrorMessageOnFailure() = runTest(testDispatcher) {
         val activity = DiseaseActivity(
             id = "1",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 20,
             globalPainLevel = 4,
             fatigueLevel = 3,
@@ -298,14 +299,14 @@ class DashboardViewModelTest {
 
         val currentState = vm.uiState.value as DashboardUiState.Success
         assertEquals(listOf(activity), currentState.activities)
-        assertEquals("Failed to delete check-in. Please try again.", currentState.errorMessage)
+        assertEquals(DashboardError.DeleteFailed, currentState.error)
     }
 
     @Test
     fun onUpdateCheckinUpdatesActivitySuccessfully() = runTest(testDispatcher) {
         val original = DiseaseActivity(
             id = "1",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 30,
             globalPainLevel = 5,
             fatigueLevel = 4,
@@ -313,7 +314,7 @@ class DashboardViewModelTest {
             createdAt = 1710000000000L,
         )
         val updated = original.copy(
-            entryDate = "2026-11-14",
+            entryDate = LocalDate(2026, 11, 14),
             morningStiffnessMinutes = 60,
             globalPainLevel = 8,
             fatigueLevel = 7,
@@ -332,7 +333,7 @@ class DashboardViewModelTest {
         advanceUntilIdle()
 
         assertEquals(
-            DashboardUiState.Success(activities = listOf(updated), errorMessage = null),
+            DashboardUiState.Success(activities = listOf(updated), error = null),
             vm.uiState.value,
         )
     }
@@ -341,7 +342,7 @@ class DashboardViewModelTest {
     fun onUpdateCheckinSurfacesErrorOnDuplicateDate() = runTest(testDispatcher) {
         val activity1 = DiseaseActivity(
             id = "1",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 30,
             globalPainLevel = 5,
             fatigueLevel = 4,
@@ -350,7 +351,7 @@ class DashboardViewModelTest {
         )
         val activity2 = DiseaseActivity(
             id = "2",
-            entryDate = "2026-11-13",
+            entryDate = LocalDate(2026, 11, 13),
             morningStiffnessMinutes = 15,
             globalPainLevel = 2,
             fatigueLevel = 1,
@@ -366,19 +367,19 @@ class DashboardViewModelTest {
         }
         advanceUntilIdle()
 
-        vm.onEvent(DashboardEvent.OnUpdateCheckin(activity2.copy(entryDate = "2026-11-12")))
+        vm.onEvent(DashboardEvent.OnUpdateCheckin(activity2.copy(entryDate = LocalDate(2026, 11, 12))))
         advanceUntilIdle()
 
         val currentState = vm.uiState.value as DashboardUiState.Success
         assertEquals(listOf(activity1, activity2), currentState.activities)
-        assertEquals("A check-in for 2026-11-12 already exists.", currentState.errorMessage)
+        assertEquals(DashboardError.DuplicateDate(LocalDate(2026, 11, 12)), currentState.error)
     }
 
     @Test
     fun onUpdateCheckinDoesNotLeakRawErrorMessagesOnUnexpectedFailure() = runTest(testDispatcher) {
         val activity = DiseaseActivity(
             id = "1",
-            entryDate = "2026-11-12",
+            entryDate = LocalDate(2026, 11, 12),
             morningStiffnessMinutes = 20,
             globalPainLevel = 4,
             fatigueLevel = 3,
@@ -401,6 +402,6 @@ class DashboardViewModelTest {
 
         val currentState = vm.uiState.value as DashboardUiState.Success
         assertEquals(listOf(activity), currentState.activities)
-        assertEquals("Failed to update check-in. Please try again.", currentState.errorMessage)
+        assertEquals(DashboardError.UpdateFailed, currentState.error)
     }
 }

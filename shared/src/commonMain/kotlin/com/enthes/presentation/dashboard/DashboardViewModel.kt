@@ -15,18 +15,18 @@ class DashboardViewModel(
     private val repository: DiseaseActivityRepository,
 ) : ViewModel() {
 
-    private val _errorMessage = MutableStateFlow<String?>(null)
+    private val _error = MutableStateFlow<DashboardError?>(null)
 
     val uiState: StateFlow<DashboardUiState> = combine(
         repository.getAllActivities(),
-        _errorMessage,
-    ) { activities, errorMessage ->
-        if (activities.isEmpty() && (errorMessage == null)) {
+        _error,
+    ) { activities, error ->
+        if (activities.isEmpty() && (error == null)) {
             DashboardUiState.Empty
         } else {
             DashboardUiState.Success(
                 activities = activities,
-                errorMessage = errorMessage,
+                error = error,
             )
         }
     }.stateIn(
@@ -41,10 +41,13 @@ class DashboardViewModel(
                 viewModelScope.launch {
                     repository.insertActivity(event.activity)
                         .onSuccess {
-                            _errorMessage.value = null
+                            _error.value = null
                         }
-                        .onFailure { error ->
-                            _errorMessage.value = mapErrorMessage(error)
+                        .onFailure { failure ->
+                            _error.value = mapError(
+                                error = failure,
+                                fallback = DashboardError.SaveFailed,
+                            )
                         }
                 }
             }
@@ -52,12 +55,12 @@ class DashboardViewModel(
                 viewModelScope.launch {
                     repository.updateActivity(event.activity)
                         .onSuccess {
-                            _errorMessage.value = null
+                            _error.value = null
                         }
-                        .onFailure { error ->
-                            _errorMessage.value = mapErrorMessage(
-                                error = error,
-                                fallbackMessage = "Failed to update check-in. Please try again.",
+                        .onFailure { failure ->
+                            _error.value = mapError(
+                                error = failure,
+                                fallback = DashboardError.UpdateFailed,
                             )
                         }
                 }
@@ -66,26 +69,24 @@ class DashboardViewModel(
                 viewModelScope.launch {
                     repository.deleteActivity(event.id)
                         .onSuccess {
-                            _errorMessage.value = null
+                            _error.value = null
                         }
                         .onFailure {
-                            _errorMessage.value = "Failed to delete check-in. Please try again."
+                            _error.value = DashboardError.DeleteFailed
                         }
                 }
             }
             DashboardEvent.OnDismissError -> {
-                _errorMessage.value = null
+                _error.value = null
             }
         }
     }
 
-    private fun mapErrorMessage(
+    private fun mapError(
         error: Throwable,
-        fallbackMessage: String = "Failed to save check-in. Please try again.",
-    ): String = when (error) {
-        is DuplicateEntryDateException -> {
-            "A check-in for ${error.entryDate} already exists."
-        }
-        else -> fallbackMessage
+        fallback: DashboardError,
+    ): DashboardError = when (error) {
+        is DuplicateEntryDateException -> DashboardError.DuplicateDate(error.entryDate)
+        else -> fallback
     }
 }
