@@ -1,8 +1,10 @@
 package com.enthes.domain.model
 
+import kotlinx.datetime.LocalDate
+
 data class DiseaseActivity(
     val id: String,
-    val entryDate: String,
+    val entryDate: LocalDate,
     val morningStiffnessMinutes: Int,
     val globalPainLevel: Int,
     val fatigueLevel: Int,
