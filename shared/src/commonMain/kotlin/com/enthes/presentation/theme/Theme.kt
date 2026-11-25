@@ -5,6 +5,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 
 val EnthesLightColorScheme = lightColorScheme(
     primary = PrimaryLight,
@@ -66,16 +68,28 @@ val EnthesDarkColorScheme = darkColorScheme(
     inversePrimary = InversePrimaryDark,
 )
 
+object EnthesTheme {
+    val evaSeverityPalette: EvaSeverityPalette
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalEvaSeverityPalette.current
+}
+
 @Composable
 fun EnthesTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
     val colorScheme = if (darkTheme) EnthesDarkColorScheme else EnthesLightColorScheme
+    val evaSeverityPalette = if (darkTheme) DarkEvaSeverityPalette else LightEvaSeverityPalette
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = EnthesTypography,
-        content = content,
-    )
+    CompositionLocalProvider(
+        LocalEvaSeverityPalette provides evaSeverityPalette,
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = EnthesTypography,
+            content = content,
+        )
+    }
 }
