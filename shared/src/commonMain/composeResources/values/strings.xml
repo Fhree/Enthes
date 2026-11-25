@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dashboard -->
+    <string name="dashboard_title">Disease Activity</string>
+
+    <!-- Empty state -->
+    <string name="empty_dashboard_title">No records yet</string>
+    <string name="empty_dashboard_subtitle">Start tracking your disease activity by logging your daily check-in.</string>
+
+    <!-- Activity card -->
+    <string name="metric_pain">Pain</string>
+    <string name="metric_fatigue">Fatigue</string>
+    <string name="metric_stiffness">Stiffness</string>
+    <string name="metric_eva_value">%1$d/10</string>
+    <string name="metric_minutes_value">%1$d min</string>
+    <string name="label_active_flare">Active Flare</string>
+    <string name="cd_delete_record">Delete record</string>
+
+    <!-- Delete confirmation dialog -->
+    <string name="delete_dialog_title">Delete Check-in</string>
+    <string name="delete_dialog_message">Are you sure you want to delete the check-in for %1$s?</string>
+
+    <!-- Quick check-in dialog -->
+    <string name="checkin_dialog_title_new">New Daily Check-in</string>
+    <string name="checkin_dialog_title_edit">Edit Daily Check-in</string>
+    <string name="checkin_date_label">Date (YYYY-MM-DD)</string>
+    <string name="checkin_date_error">Use YYYY-MM-DD format</string>
+    <string name="checkin_pain_level">Pain Level</string>
+    <string name="checkin_fatigue_level">Fatigue Level</string>
+    <string name="checkin_stiffness_label">Morning Stiffness (minutes)</string>
+    <string name="checkin_slider_value">%1$s: %2$d/10</string>
+
+    <!-- Common actions -->
+    <string name="action_save">Save</string>
+    <string name="action_update">Update</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_cancel">Cancel</string>
+
+    <!-- Dashboard errors -->
+    <string name="error_duplicate_date">A check-in for %1$s already exists.</string>
+    <string name="error_save_failed">Failed to save check-in. Please try again.</string>
+    <string name="error_update_failed">Failed to update check-in. Please try again.</string>
+    <string name="error_delete_failed">Failed to delete check-in. Please try again.</string>
+</resources>
