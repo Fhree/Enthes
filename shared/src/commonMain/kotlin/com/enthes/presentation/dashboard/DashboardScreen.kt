@@ -77,11 +77,10 @@ fun DashboardContent(
     DashboardDialogs(
         dialogState = dialogState,
         onDismiss = { dialogState = DashboardDialogState.None },
-        onEvent = { event ->
-            dialogState = DashboardDialogState.None
-            onEvent(event)
-        },
-    )
+    ) { event ->
+        dialogState = DashboardDialogState.None
+        onEvent(event)
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -144,8 +143,9 @@ private fun DashboardDialogs(
             DeleteActivityConfirmationDialog(
                 entryDate = dialogState.activity.entryDate,
                 onDismissRequest = onDismiss,
-                onConfirmDelete = { onEvent(DashboardEvent.OnDeleteActivity(dialogState.activity.id)) },
-            )
+            ) {
+                onEvent(DashboardEvent.OnDeleteActivity(dialogState.activity.id))
+            }
         }
     }
 }

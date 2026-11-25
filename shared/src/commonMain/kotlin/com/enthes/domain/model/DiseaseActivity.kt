@@ -12,10 +12,10 @@ data class DiseaseActivity(
     val createdAt: Long,
 ) {
     init {
-        require(globalPainLevel in 0..10) {
+        require(globalPainLevel in (0..10)) {
             "globalPainLevel must be between 0 and 10, but was $globalPainLevel"
         }
-        require(fatigueLevel in 0..10) {
+        require(fatigueLevel in (0..10)) {
             "fatigueLevel must be between 0 and 10, but was $fatigueLevel"
         }
         require(morningStiffnessMinutes >= 0) {
