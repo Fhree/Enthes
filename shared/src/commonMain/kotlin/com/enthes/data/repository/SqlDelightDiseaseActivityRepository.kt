@@ -30,6 +30,10 @@ class SqlDelightDiseaseActivityRepository(
             .map { list -> list.map { it.toDomain() } }
     }
 
+    override suspend fun getActivityById(id: String): DiseaseActivity? = withContext(Dispatchers.IO) {
+        queries.selectById(id).executeAsOneOrNull()?.toDomain()
+    }
+
     override suspend fun insertActivity(activity: DiseaseActivity): Result<Unit> =
         executeActivityWrite(activity.entryDate) {
             queries.insertDiseaseActivity(activity)

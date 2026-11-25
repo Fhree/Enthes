@@ -5,7 +5,8 @@ CREATE TABLE historic_disease_activity (
     global_pain_level INTEGER NOT NULL,
     fatigue_level INTEGER,
     has_active_flare INTEGER NOT NULL DEFAULT 0,
-    created_at INTEGER NOT NULL
+    created_at INTEGER NOT NULL,
+    pain_zones TEXT NOT NULL DEFAULT ''
 );
 
 -- Returns full list sorted by date DESC
@@ -13,6 +14,12 @@ selectAllDiseaseActivities:
 SELECT *
 FROM historic_disease_activity
 ORDER BY entry_date DESC;
+
+-- Returns a single daily record by id
+selectById:
+SELECT *
+FROM historic_disease_activity
+WHERE id = ?;
 
 -- Add new daily data
 insertDiseaseActivity:
@@ -23,8 +30,9 @@ INSERT INTO historic_disease_activity (
     global_pain_level,
     fatigue_level,
     has_active_flare,
-    created_at
-) VALUES (?, ?, ?, ?, ?, ?, ?);
+    created_at,
+    pain_zones
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 
 -- Delete a daily record by id
 deleteById:
@@ -38,5 +46,6 @@ SET entry_date = ?,
     morning_stiffness_minutes = ?,
     global_pain_level = ?,
     fatigue_level = ?,
-    has_active_flare = ?
+    has_active_flare = ?,
+    pain_zones = ?
 WHERE id = ?;

@@ -23,6 +23,9 @@ class FakeDiseaseActivityRepository(
 
     override fun getAllActivities(): Flow<List<DiseaseActivity>> = activitiesFlow.asStateFlow()
 
+    override suspend fun getActivityById(id: String): DiseaseActivity? =
+        existingActivities.firstOrNull { it.id == id }
+
     override suspend fun insertActivity(activity: DiseaseActivity): Result<Unit> = when {
         shouldFailOnInsert -> Result.failure(failureException)
         existingActivities.any { it.entryDate == activity.entryDate } -> {

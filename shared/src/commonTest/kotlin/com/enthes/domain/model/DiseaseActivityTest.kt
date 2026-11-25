@@ -27,6 +27,10 @@ class DiseaseActivityTest {
         assertEquals(4, activity.fatigueLevel)
         assertTrue(activity.hasActiveFlare)
         assertEquals(1710000000000L, activity.createdAt)
+        assertEquals(emptySet(), activity.painZones)
+
+        val activityWithZones = activity.copy(painZones = setOf(PainZone.LUMBAR, PainZone.KNEES))
+        assertEquals(setOf(PainZone.LUMBAR, PainZone.KNEES), activityWithZones.painZones)
     }
 
     @Test

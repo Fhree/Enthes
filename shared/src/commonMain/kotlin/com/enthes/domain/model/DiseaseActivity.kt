@@ -10,6 +10,7 @@ data class DiseaseActivity(
     val fatigueLevel: Int,
     val hasActiveFlare: Boolean,
     val createdAt: Long,
+    val painZones: Set<PainZone> = emptySet(),
 ) {
     init {
         require(globalPainLevel in (0..10)) {

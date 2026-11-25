@@ -6,6 +6,8 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class DiseaseActivityDatabaseTest {
 
@@ -34,7 +36,8 @@ class DiseaseActivityDatabaseTest {
             global_pain_level = 4L,
             fatigue_level = 3L,
             has_active_flare = 0L,
-            created_at = 1710000000000L
+            created_at = 1710000000000L,
+            pain_zones = "LUMBAR",
         )
 
         queries.insertDiseaseActivity(
@@ -44,14 +47,42 @@ class DiseaseActivityDatabaseTest {
             global_pain_level = 6L,
             fatigue_level = 5L,
             has_active_flare = 1L,
-            created_at = 1710086400000L
+            created_at = 1710086400000L,
+            pain_zones = "LUMBAR,KNEES",
         )
 
         val results = queries.selectAllDiseaseActivities().executeAsList()
 
         assertEquals(2, results.size)
         assertEquals("2026-03-02", results[0].entry_date)
+        assertEquals("LUMBAR,KNEES", results[0].pain_zones)
         assertEquals("2026-03-01", results[1].entry_date)
+        assertEquals("LUMBAR", results[1].pain_zones)
+    }
+
+    @Test
+    fun testSelectByIdReturnsMatchingRowOrNull() {
+        val queries = database.enthesQueries
+
+        queries.insertDiseaseActivity(
+            id = "1",
+            entry_date = "2026-03-01",
+            morning_stiffness_minutes = 30L,
+            global_pain_level = 4L,
+            fatigue_level = 3L,
+            has_active_flare = 0L,
+            created_at = 1710000000000L,
+            pain_zones = "CERVICAL,HANDS",
+        )
+
+        val found = queries.selectById("1").executeAsOneOrNull()
+        assertNotNull(found)
+        assertEquals("1", found.id)
+        assertEquals("2026-03-01", found.entry_date)
+        assertEquals("CERVICAL,HANDS", found.pain_zones)
+
+        val missing = queries.selectById("non-existent").executeAsOneOrNull()
+        assertNull(missing)
     }
 
     @Test
@@ -65,7 +96,8 @@ class DiseaseActivityDatabaseTest {
             global_pain_level = 4L,
             fatigue_level = 3L,
             has_active_flare = 0L,
-            created_at = 1710000000000L
+            created_at = 1710000000000L,
+            pain_zones = "",
         )
 
         assertFailsWith<Exception> {
@@ -76,7 +108,8 @@ class DiseaseActivityDatabaseTest {
                 global_pain_level = 2L,
                 fatigue_level = 2L,
                 has_active_flare = 0L,
-                created_at = 1710000050000L
+                created_at = 1710000050000L,
+                pain_zones = "",
             )
         }
     }
@@ -93,6 +126,7 @@ class DiseaseActivityDatabaseTest {
             fatigue_level = 3L,
             has_active_flare = 0L,
             created_at = 1710000000000L,
+            pain_zones = "",
         )
 
         queries.insertDiseaseActivity(
@@ -103,6 +137,7 @@ class DiseaseActivityDatabaseTest {
             fatigue_level = 5L,
             has_active_flare = 1L,
             created_at = 1710086400000L,
+            pain_zones = "FEET_HEELS",
         )
 
         queries.deleteById("1")
@@ -126,6 +161,7 @@ class DiseaseActivityDatabaseTest {
             fatigue_level = 3L,
             has_active_flare = 0L,
             created_at = 1710000000000L,
+            pain_zones = "LUMBAR",
         )
         queries.insertDiseaseActivity(
             id = "2",
@@ -135,6 +171,7 @@ class DiseaseActivityDatabaseTest {
             fatigue_level = 5L,
             has_active_flare = 1L,
             created_at = 1710086400000L,
+            pain_zones = "",
         )
 
         queries.updateActivity(
@@ -143,6 +180,7 @@ class DiseaseActivityDatabaseTest {
             global_pain_level = 8L,
             fatigue_level = 7L,
             has_active_flare = 1L,
+            pain_zones = "LUMBAR,KNEES,SHOULDERS_ELBOWS",
             id = "1",
         )
 
@@ -156,6 +194,7 @@ class DiseaseActivityDatabaseTest {
         assertEquals(7L, results[0].fatigue_level)
         assertEquals(1L, results[0].has_active_flare)
         assertEquals(1710000000000L, results[0].created_at)
+        assertEquals("LUMBAR,KNEES,SHOULDERS_ELBOWS", results[0].pain_zones)
 
         assertEquals("2", results[1].id)
         assertEquals("2026-03-02", results[1].entry_date)
@@ -173,6 +212,7 @@ class DiseaseActivityDatabaseTest {
             fatigue_level = 3L,
             has_active_flare = 0L,
             created_at = 1710000000000L,
+            pain_zones = "",
         )
         queries.insertDiseaseActivity(
             id = "2",
@@ -182,6 +222,7 @@ class DiseaseActivityDatabaseTest {
             fatigue_level = 5L,
             has_active_flare = 1L,
             created_at = 1710086400000L,
+            pain_zones = "",
         )
 
         assertFailsWith<Exception> {
@@ -191,6 +232,7 @@ class DiseaseActivityDatabaseTest {
                 global_pain_level = 2L,
                 fatigue_level = 2L,
                 has_active_flare = 0L,
+                pain_zones = "",
                 id = "1",
             )
         }
